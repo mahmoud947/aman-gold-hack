@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@theme {
+  --color-aman: #04768d;
+  --color-aman-dark: #035a6c;
+  --color-aman-light: #64c2d3;
+  --color-aman-soft: #e4f4f7;
+  --color-navy: #1e2b4a;
+  --color-gold: #b8912f;
+  --color-gold-soft: #fbf3dd;
+  --color-canvas: #f3f6f8;
+  --color-good: #15803d;
+  --color-bad: #dc2626;
+  --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+html, body { background: #dfe6ea; color: var(--color-navy); }
+/* Aman brand gradient (from the design palette): #04768D to #64C2D3 */
+.bg-aman-gradient { background: linear-gradient(150deg, #04768d 0%, #04768d 38%, #64c2d3 135%); }
+.bg-aman-gradient-flat { background: linear-gradient(90deg, #04768d, #64c2d3); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.slide-up { animation: slideUp .22s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn .25s ease-out; }

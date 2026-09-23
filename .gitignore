@@ -1,0 +1,22 @@
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+.env
+.env.local
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# --- unrelated project living in this same folder: never tracked in the aman-gold repo ---
+/BuySheet.dc.html
+/Main.dc.html
+/canvas.json
+/server.js
+/package.json
+/package-lock.json
+/data/
+/public/
+/scratch/
+/.claude/

@@ -1,0 +1,238 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-09-22T00:17:29.190Z"
+  },
+  "title": "Aman Gold - Delivery Story and Flow Board",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 260,
+      "w": 1440,
+      "h": 1080,
+      "title": "Delivery overview"
+    },
+    "F01-Home.dc.html": {
+      "x": 0,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "1 Home",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F02-Landing.dc.html": {
+      "x": 470,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "2 Gold landing",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F03-Onboarding.dc.html": {
+      "x": 940,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "3 Onboarding (existing customer)",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F04-Dashboard.dc.html": {
+      "x": 1410,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "4 Dashboard",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F05-Buy.dc.html": {
+      "x": 1880,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "5 Buy: amount",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F06-Summary.dc.html": {
+      "x": 2350,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "6 Order summary",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F07-Success.dc.html": {
+      "x": 2820,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "7 Success",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F08-Portfolio.dc.html": {
+      "x": 3290,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "8 Portfolio",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F09-DailyPnl.dc.html": {
+      "x": 3760,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "9 Daily P&L",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F10-Transactions.dc.html": {
+      "x": 4230,
+      "y": 1680,
+      "w": 390,
+      "h": 844,
+      "title": "10 Transactions",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "F11-OnboardingBranch.dc.html": {
+      "x": 0,
+      "y": 2900,
+      "w": 920,
+      "h": 844,
+      "title": "Onboarding decision",
+      "is_interactive": true,
+      "radius": 12
+    },
+    "N01-Mobile.dc.html": {
+      "x": 1000,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N1 Mobile number",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N02-Code.dc.html": {
+      "x": 1470,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N2 Verification code",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N03-Pin.dc.html": {
+      "x": 1940,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N3 Create PIN",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N04-Details.dc.html": {
+      "x": 2410,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N4 Personal details",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N05-Id.dc.html": {
+      "x": 2880,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N5 ID document",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N06-Selfie.dc.html": {
+      "x": 3350,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N6 Selfie check",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N07-Card.dc.html": {
+      "x": 3820,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N7 Prepaid card + top-up",
+      "is_interactive": true,
+      "radius": 24
+    },
+    "N08-Agreements.dc.html": {
+      "x": 4290,
+      "y": 2900,
+      "w": 390,
+      "h": 844,
+      "title": "N8 Agreements",
+      "is_interactive": true,
+      "radius": 24
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "F01-Home.dc.html",
+    "F02-Landing.dc.html",
+    "F03-Onboarding.dc.html",
+    "F04-Dashboard.dc.html",
+    "F05-Buy.dc.html",
+    "F06-Summary.dc.html",
+    "F07-Success.dc.html",
+    "F08-Portfolio.dc.html",
+    "F09-DailyPnl.dc.html",
+    "F10-Transactions.dc.html",
+    "F11-OnboardingBranch.dc.html",
+    "N01-Mobile.dc.html",
+    "N02-Code.dc.html",
+    "N03-Pin.dc.html",
+    "N04-Details.dc.html",
+    "N05-Id.dc.html",
+    "N06-Selfie.dc.html",
+    "N07-Card.dc.html",
+    "N08-Agreements.dc.html"
+  ],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": 0,
+      "text": "How Aman Gold was built",
+      "kind": "title1",
+      "maxW": 1440
+    },
+    "t2": {
+      "x": 0,
+      "y": 1420,
+      "text": "Customer flow: press Play and click through",
+      "kind": "title1",
+      "maxW": 4700
+    },
+    "t3": {
+      "x": 0,
+      "y": 2640,
+      "text": "Onboarding: brand-new customer (nothing on file)",
+      "kind": "title1",
+      "maxW": 4680
+    }
+  },
+  "designSystems": []
+}
