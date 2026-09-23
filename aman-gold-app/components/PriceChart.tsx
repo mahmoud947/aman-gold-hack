@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import { getHistoricalGoldPrices } from "../services/pricing";
+import { dataSource, getHistoricalGoldPrices } from "../services/pricing";
 import { useStore } from "../services/store";
 import type { Range } from "../types";
 import { dateTime, egp, pct } from "../utils/format";
@@ -57,6 +57,11 @@ export default function PriceChart() {
       <div className="mt-2 flex justify-between text-[12px] text-navy/60">
         <span>Low <b className="text-navy">{egp(lo)}</b></span><span>High <b className="text-navy">{egp(hi)}</b></span>
       </div>
+      {range !== "1D" && (
+        <div className="mt-1 text-[10.5px] text-navy/40">
+          History (22 Aug - 21 Sep): {dataSource() === "database" ? "verified daily closes, Aman Gold price database" : "verified daily closes, local reference data"}. Earlier points and today's live price are simulated (DEMO).
+        </div>
+      )}
       <div className="mt-3 flex gap-1.5">
         {RANGES.map((r) => (
           <button key={r} onClick={() => { setRange(r); setHover(null); }} className={`flex-1 rounded-full py-1.5 text-[12px] font-bold ${range === r ? "bg-navy text-white" : "bg-canvas text-navy/60"}`}>{r}</button>

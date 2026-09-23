@@ -4,6 +4,7 @@ import { DEMO_CUSTOMER, DEMO_OPENING_CASH, buildSeed } from "../data/seed";
 import type { Customer, Quote, Transaction, TxType } from "../types";
 import { buildBuy, buildSell, computeCash, computeWallet, validateBuy, validateSell, quoteBuy, quoteSell, type BuyQuote, type SellQuote } from "./engine";
 import { getBuyPrice, getCurrentGoldPrice, getSellPrice, isProviderAvailable, marketControls } from "./pricing";
+import { loadHistoryFromDb } from "./history";
 import { PRODUCT_CONFIG } from "../config/product";
 
 const KEY = "aman-gold-app-v4";
@@ -82,6 +83,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { if (hydrated) try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* ignore */ } }, [s, hydrated]);
   useEffect(() => marketControls.subscribe(() => setVersion((v) => v + 1)), []);
   useEffect(() => { const id = setInterval(() => marketControls.tick(), 8000); return () => clearInterval(id); }, []);
+  // Fire-and-forget: swap in real Supabase-backed price history once it loads; static fallback renders in the meantime.
+  useEffect(() => { loadHistoryFromDb().then(() => setVersion((v) => v + 1)); }, []);
 
   const sellPrice = getSellPrice();
   const buyPrice = getBuyPrice();

@@ -1,11 +1,15 @@
 import { PRODUCT_CONFIG } from "../config/product";
-import { REAL_DAILY_24K } from "../data/marketHistory";
+import { getDailyHistory, getHistorySource, getIntradayHistory } from "./history";
 import type { MarketDataProvider, PricePoint, Range } from "../types";
 
 /**
  * MOCK market data provider (DEMO). Simulated prices only.
  * To go live, implement MarketDataProvider against the selected gold/liquidity provider and
  * change `provider` below. The UI only calls the exported functions, never the mock directly.
+ *
+ * Real daily closes (and, for the most recent day, real-anchored intraday ticks) come from the Supabase
+ * `gold_price_history` table via services/history.ts, with a local static-array fallback if the DB is
+ * unreachable — see that file for details. Everything is still DEMO/simulated beyond that seeded window.
  */
 // Reference price: ~EGP 7,223 per gram of 24k gold in Egypt, 21 Sep 2026, 23:27 Cairo (livepriceofgold.com via web search).
 // Other Egyptian sites showed 7,217-7,290 the same day. Used only as a starting example; all later movement is simulated.
@@ -29,10 +33,25 @@ class MockProvider implements MarketDataProvider {
 
   getHistoricalGoldPrices(range: Range): PricePoint[] {
     if (range !== "1D") return this.dailyHistory(range);
-    // 1D: simulated intraday path that ends at the current price (no intraday history source connected).
-    const n = 48, step = 30 * 60_000, vol = 0.0011;
-    const rnd = seeded(range.charCodeAt(0) * 97 + range.length);
+    return this.intradayHistory();
+  }
+
+  /**
+   * 1D: prefer the real-anchored half-hourly ticks for the most recent seeded trading day (from the DB, see
+   * services/history.ts), rescaled to end at the current live price so the chart is continuous. Falls back to
+   * a fully simulated intraday path if no DB intraday data has loaded (or none exists for that day).
+   */
+  private intradayHistory(): PricePoint[] {
+    const real = getIntradayHistory();
     const now = Date.now();
+    if (real.length > 0) {
+      const lastReal = real[real.length - 1].p;
+      const scale = this.mid / lastReal;
+      return [...real.map((pt) => ({ t: pt.t, p: Math.round(pt.p * scale * 100) / 100 })), { t: now, p: this.mid }];
+    }
+    // No DB intraday available: simulated path ending at the current price.
+    const n = 48, step = 30 * 60_000, vol = 0.0011;
+    const rnd = seeded(97);
     const pts: PricePoint[] = [{ t: now, p: this.mid }];
     let p = this.mid;
     for (let i = 1; i < n; i++) {
@@ -42,10 +61,10 @@ class MockProvider implements MarketDataProvider {
     return pts;
   }
 
-  /** 1W / 1M use REAL daily reference prices (data/marketHistory.ts); older history is simulated backwards (DEMO). */
+  /** 1W / 1M / 3M / 1Y: real daily closes (DB or local fallback, see services/history.ts); older history is simulated backwards (DEMO). */
   private dailyHistory(range: Range): PricePoint[] {
     const need = { "1D": 1, "1W": 7, "1M": 31, "3M": 92, "1Y": 365 }[range];
-    const pts: PricePoint[] = REAL_DAILY_24K.map(([d, p]) => ({ t: new Date(d + "T12:00:00").getTime(), p }));
+    const pts: PricePoint[] = [...getDailyHistory()];
     const rnd = seeded(4242);
     let p = pts[0].p, t = pts[0].t;
     while (pts.length < need) {
@@ -79,6 +98,7 @@ export const getHistoricalGoldPrices = (r: Range) => provider.getHistoricalGoldP
 export const getBuyPrice = () => provider.getBuyPrice();
 export const getSellPrice = () => provider.getSellPrice();
 export const isProviderAvailable = () => provider.isAvailable();
+export const dataSource = () => getHistorySource();
 export const marketControls = {
   tick: () => provider.tick(), shock: (p: number) => provider.shock(p),
   setAvailable: (v: boolean) => provider.setAvailable(v), subscribe: (l: () => void) => provider.subscribe(l), reset: () => provider.reset(),
