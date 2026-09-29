@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { PRODUCT_CONFIG } from "../../config/product";
 import { useNav } from "../../components/nav";
-import { Alert, Button, Card, Field, Pill, Row, Screen, Sheet, Stepper } from "../../components/ui";
+import { Alert, Button, Card, Field, Pill, Row, Screen, Sheet, SignaturePad, Stepper } from "../../components/ui";
 import { useStore } from "../../services/store";
 import OnboardingNew from "./OnboardingNew";
 
@@ -21,6 +21,7 @@ function OnboardingExisting() {
   const [otp, setOtp] = useState("");
   const [addr, setAddr] = useState(st.customer.address ?? "");
   const [agree, setAgree] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
   const [fund, setFund] = useState<"prepaid" | "new">("prepaid");
   const [doc, setDoc] = useState<string | null>(null);
   const c = st.customer;
@@ -38,7 +39,7 @@ function OnboardingExisting() {
         step === 3 ? <Button disabled={otp.length < 4} onClick={next}>Continue</Button> :
         step === 4 ? <Button disabled={addr.trim().length < 5} onClick={() => { st.set({ customer: { ...c, address: addr }, kycMissing: false }); setStep(5); }}>Continue</Button> :
         step === 5 ? <Button onClick={next}>Continue</Button> :
-        step === 6 ? <Button disabled={!agree} onClick={next}>Start Investing</Button> :
+        step === 6 ? <Button disabled={!agree || !signature} onClick={next}>Start Investing</Button> :
         <Button variant="gold" onClick={finish}>View Gold</Button>
       }>
       <Stepper step={step} total={7} />
@@ -100,6 +101,10 @@ function OnboardingExisting() {
             ))}
           </Card>
           <label className="flex items-start gap-3 rounded-2xl bg-white p-4 text-[13px]"><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-5 w-5 accent-teal-700" />I have read and agree to the terms, fees and risk disclosure.</label>
+          {agree && (<>
+            <SignaturePad value={signature} onChange={setSignature} label="Sign to authorize Gold Investment" />
+            <div className="text-[11px] text-navy/40">Your Aman account identity (eKYC) is already verified; this signature authorizes adding the Gold Investment product. Legal validity is to be confirmed with Compliance.</div>
+          </>)}
           <Sheet open={!!doc && doc !== "newcard"} onClose={() => setDoc(null)} title={doc ?? ""}>
             <div className="max-h-56 overflow-y-auto text-[13px] leading-relaxed text-navy/70">Placeholder legal text for the prototype. Final wording is to be provided by Legal and Compliance. Gold prices can rise and fall. Spread: {PRODUCT_CONFIG.pricing.spreadPctPerSide}% each side. Regulatory structure: TO VALIDATE.</div>
             <div className="mt-3"><Button onClick={() => setDoc(null)}>Close</Button></div>

@@ -1,0 +1,216 @@
+Issue Type,Issue Id,Parent,Summary,Description,Story Points,Status,Epic Name
+Epic,E1,,Discover Gold from Home,Entry point on the Aman Super App home screen into the Gold product.,,Done,Discover Gold from Home
+Epic,E2,,Onboarding: existing Aman customer,Short onboarding that reuses KYC data already on file.,,Done,Onboarding: existing Aman customer
+Epic,E3,,Onboarding: brand-new customer,"Full capture flow when nothing is on file yet (mobile, PIN, ID, selfie, prepaid card).",,Done,Onboarding: brand-new customer
+Epic,E4,,Gold Home / Dashboard,"Portfolio value, holdings, unrealized P&L, live buy/sell price at a glance.",,Done,Gold Home / Dashboard
+Epic,E5,,Gold price chart,"1D/1W/1M/3M/1Y price history, DB-backed for the daily ranges with a local fallback.",,Done,Gold price chart
+Epic,E6,,Buy gold,"Buy by grams or by EGP, in 0.1g steps, with a price-locked order summary and PIN confirmation.",,Done,Buy gold
+Epic,E7,,Sell gold,"Sell by grams or by EGP, proceeds credited to the Aman prepaid balance.",,Done,Sell gold
+Epic,E8,,Portfolio,"Holdings, asset allocation, today's realized P&L, cumulative realized P&L chart.",,Done,Portfolio
+Epic,E9,,Daily P&L calendar,Calendar and bar views of realized P&L per day.,,Done,Daily P&L calendar
+Epic,E10,,Transaction history and details,List of past orders and a detail view with before/after balances.,,Done,Transaction history and details
+Epic,E11,,Profile,"Customer info, KYC status, linked payment method, documents, FAQ.",,Done,Profile
+Epic,E12,,Centralized business configuration,"Spread, fee, limits, quote validity, funding method — one config, never hardcoded in UI.",,Done,Centralized business configuration
+Epic,E13,,Gold price engine,"getCurrentGoldPrice / getHistoricalGoldPrices / getBuyPrice / getSellPrice behind one interface, swappable for a real provider.",,Done,Gold price engine
+Epic,E14,,Transaction engine and ledger integrity,"Quoting, validation, average-cost wallet math; cash and gold always derived from the ledger, never stored separately.",,Done,Transaction engine and ledger integrity
+Epic,E15,,Edge cases,"Insufficient balance, insufficient gold, price changed, failed transaction, provider unavailable, KYC incomplete, market volatility.",,Done,Edge cases
+Epic,E16,,Realistic demo data,Seeded investor history on real market prices with a mix of winning and losing days.,,Done,Realistic demo data
+Epic,E17,,Product documentation set,"PRD, business flow, architecture, assumptions/compliance/risk/roadmap.",,Done,Product documentation set
+Epic,E18,,Reusable design system,"A named, documented component library (colors, type, spacing, components) beyond ad hoc Tailwind classes — not built.",,To do,Reusable design system
+Epic,E19,,KPI / analytics framework,"Event tracking and a KPI dashboard for acquisition, activation, engagement, transactions, financial, risk metrics — not built at all.",,To do,KPI / analytics framework
+Epic,E20,,"Compliance checklist as a standalone, owned artifact","Currently a narrative list inside one doc; not a tracked, assigned checklist with real legal sign-off.",,To do,"Compliance checklist as a standalone, owned artifact"
+Epic,E21,,eKYC signature capture,"Draw-to-sign consent capture wired into both onboarding flows, closing the gap where 'agree to terms' was only ever a checkbox.",,Done,eKYC signature capture
+Story,E1-S1,E1,Gold entry point on Home,"As a Aman Super App user, I want to see a Gold tile with the live price on my Home screen, so that I discover the product without hunting for it.
+
+Acceptance criteria:
+- Given I open Aman Home, when the page loads, then I see a Gold strip showing the current price per gram.
+- Given I tap the Gold strip, when I am not yet onboarded, then I land on the Gold landing page; when I am onboarded, then I land directly on the Gold dashboard.
+
+Notes: Verified: features/home/Home.tsx",3 (estimate),Done,Discover Gold from Home
+Story,E1-S2,E1,Gold landing page explains the product,"As a prospective Gold customer, I want to see price, chart, fees, and risk disclosure before I commit to onboarding, so that I understand what I'm signing up for.
+
+Acceptance criteria:
+- Given I open the landing page, when it renders, then I see live buy/sell price, a price chart, benefits, fees, and a risk disclaimer.
+- Given I tap Start Investing, when I am not onboarded, then onboarding begins.
+
+Notes: Verified: features/gold/Landing.tsx",3 (estimate),Done,Discover Gold from Home
+Story,E2-S1,E2,Account check reuses data on file,"As a existing Aman customer, I want to not re-enter information Aman already has, so that onboarding is fast.
+
+Acceptance criteria:
+- Given I have KYC data on file, when I reach the account check step, then my name, mobile, and KYC fields show as already on file.
+- Given a field is missing, when I reach that step, then only the missing field is requested.
+
+Notes: Verified: features/onboarding/Onboarding.tsx",3 (estimate),Done,Onboarding: existing Aman customer
+Story,E2-S2,E2,7-step existing-customer onboarding completes,"As a existing Aman customer, I want to finish onboarding in a handful of steps, so that I reach the Gold dashboard quickly.
+
+Acceptance criteria:
+- Given I complete mobile verification, identity review, payment method selection, and agreements, when I finish, then I land on an empty Gold dashboard ready to buy.",5 (estimate),Done,Onboarding: existing Aman customer
+Story,E3-S1,E3,Brand-new customer captures full identity,"As a person with no Aman profile, I want to provide mobile, PIN, personal details, ID (front/back), and a selfie, so that Aman can verify who I am before I invest.
+
+Acceptance criteria:
+- Given I am a brand-new customer, when I walk the 11-step flow, then each step's Continue button is disabled until that step's data is valid (mismatched PIN, incomplete ID capture, etc. all block progress).
+- Given I complete all 11 steps, when I finish, then a masked profile and an Aman prepaid card are created.
+
+Notes: Verified: features/onboarding/OnboardingNew.tsx",8 (estimate),Done,Onboarding: brand-new customer
+Story,E3-S2,E3,Prepaid card issued with an optional first top-up,"As a brand-new customer, I want to get an Aman prepaid card and add money via InstaPay during onboarding, so that I can buy gold right after I finish onboarding.
+
+Acceptance criteria:
+- Given I reach the card step, when I request a card, then a masked card is shown.
+- Given I choose a top-up amount, when I finish onboarding, then my opening balance equals that top-up (or zero if I skipped it).",3 (estimate),Done,Onboarding: brand-new customer
+Story,E4-S1,E4,Dashboard shows portfolio value and holdings at a glance,"As a Gold customer, I want to see my portfolio value, grams held, and unrealized P&L the moment I open Gold, so that I know where I stand without digging through screens.
+
+Acceptance criteria:
+- Given I have holdings, when I open the dashboard, then I see portfolio value, grams held, and unrealized P&L with a percentage.
+- Given I have zero holdings, when I open the dashboard, then Sell is disabled and I'm invited to buy from the minimum (0.1g).
+
+Notes: Verified: features/gold/Dashboard.tsx",5 (estimate),Done,Gold Home / Dashboard
+Story,E5-S1,E5,Price chart across five ranges,"As a Gold customer, I want to switch between 1D/1W/1M/3M/1Y views of the gold price, so that I can judge whether now is a good time to buy or sell.
+
+Acceptance criteria:
+- Given I select a range, when the chart redraws, then low/high and percentage change reflect that range.
+- Given the 1W/1M/3M/1Y ranges are shown, when data loads, then real daily closes from the Aman Gold price database back the chart, falling back to local reference data if the database is unreachable, with a caption naming which source was used.
+
+Notes: Verified: components/PriceChart.tsx, services/history.ts",5 (estimate),Done,Gold price chart
+Story,E6-S1,E6,Buy by grams in 0.1g steps,"As a Gold customer, I want to buy a whole number of 0.1g steps, so that my order matches what the provider can actually fulfil.
+
+Acceptance criteria:
+- Given I enter an amount that isn't a 0.1g multiple, when I try to proceed, then I see a step-size validation message.
+- Given I enter a valid amount, when I review the order, then I see quantity, price, fee, total, and a 30-second price lock countdown.
+
+Notes: Verified: features/trade/Trade.tsx, services/engine.ts",5 (estimate),Done,Buy gold
+Story,E6-S2,E6,Buy by EGP rounds down to the nearest step,"As a Gold customer, I want to enter an EGP amount and have it convert to a valid gram quantity, so that I don't need to do the gram math myself.
+
+Acceptance criteria:
+- Given I enter an EGP amount, when it doesn't divide evenly into 0.1g steps, then the app rounds down and shows the leftover balance that stays uninvested.",3 (estimate),Done,Buy gold
+Story,E6-S3,E6,Order confirms with PIN and shows before/after balances,"As a Gold customer, I want to confirm my order with a PIN and see exactly what changed, so that I trust that the transaction did what it says.
+
+Acceptance criteria:
+- Given I enter a valid PIN, when the order processes, then I see a success screen with a transaction ID and cash/gold balances before and after.
+- Given I tap PIN digits rapidly or more than 4 times, when the order submits, then exactly one transaction is created, never more.
+
+Notes: Regression-tested after DEF-01 (duplicate-order bug); see delivery-pack Defects sheet.",5 (estimate),Done,Buy gold
+Story,E7-S1,E7,Sell by grams or by EGP,"As a Gold customer, I want to sell either a gram amount or an EGP value of my holdings, so that I can express my sell order however is natural to me.
+
+Acceptance criteria:
+- Given I choose to sell by EGP, when I enter a value, then it converts to the nearest 0.1g step at the current sell price.
+- Given I try to sell more than I hold, when I review the order, then I see an insufficient-gold message and cannot proceed.
+
+Notes: Verified: features/trade/Trade.tsx",5 (estimate),Done,Sell gold
+Story,E7-S2,E7,Sell proceeds credited to the prepaid balance,"As a Gold customer, I want to see my proceeds land in my Aman balance immediately, so that I know the money is available right away.
+
+Acceptance criteria:
+- Given a sell order completes, when I view the success screen, then it states the amount was credited to my Aman balance and shows realized P&L for that sale.",2 (estimate),Done,Sell gold
+Story,E8-S1,E8,Portfolio shows asset allocation,"As a Gold customer, I want to see what share of my Aman balance is in gold versus cash, so that I understand my overall exposure, not just my gold holdings.
+
+Acceptance criteria:
+- Given I open Portfolio, when it loads, then I see a Gold-vs-Cash allocation donut with percentages that sum to 100%.
+
+Notes: Verified: features/portfolio/Portfolio.tsx",3 (estimate),Done,Portfolio
+Story,E8-S2,E8,Cumulative realized P&L chart,"As a Gold customer, I want to see my realized profit or loss accumulate over the last 30 days, so that I can see whether my trading has been net positive.
+
+Acceptance criteria:
+- Given I have at least one sale, when I view Portfolio, then the cumulative P&L chart's final point equals the sum of every day's realized P&L in the Daily P&L calendar for the same period.
+
+Notes: Verified against services/pnl.ts; reconciliation bug (DEF-04, a daylight-saving date error) found and fixed during development.",5 (estimate),Done,Portfolio
+Story,E9-S1,E9,Daily P&L calendar,"As a Gold customer, I want to see which days I made or lost money, so that I can review my trading pattern day by day.
+
+Acceptance criteria:
+- Given I open Daily P&L, when a month renders, then each day with a sale shows realized P&L in green (profit) or red (loss); days with no sale show 0.00.
+- Given I sell gold today, when I return to this screen, then today's cell updates live to reflect that sale.
+
+Notes: Verified: features/portfolio/DailyPnl.tsx",5 (estimate),Done,Daily P&L calendar
+Story,E10-S1,E10,Transaction list,"As a Gold customer, I want to see all my past buys and sells, newest first, so that I can review my trading history.
+
+Acceptance criteria:
+- Given I open Activity, when the list renders, then each row shows type, quantity, price, gross amount, and status.
+
+Notes: Verified: features/transactions/Transactions.tsx",3 (estimate),Done,Transaction history and details
+Story,E10-S2,E10,Transaction detail shows before/after balances,"As a Gold customer, I want to open any transaction and see exactly what it changed, so that I can verify my cash and gold moved the way I expect.
+
+Acceptance criteria:
+- Given I open a transaction, when the detail view loads, then I see cash balance before/after and gold balance before/after, plus fee and net amount.",2 (estimate),Done,Transaction history and details
+Story,E11-S1,E11,Profile shows account and KYC status,"As a Gold customer, I want to see my name, mobile, KYC status, and linked payment method, so that I can confirm my account is set up correctly.
+
+Acceptance criteria:
+- Given I open Profile, when it loads, then I see KYC status (Complete/Incomplete), masked ID, linked card, and current prepaid balance.
+
+Notes: Verified: features/profile/Profile.tsx",2 (estimate),Done,Profile
+Story,E12-S1,E12,No business value is hardcoded in a screen component,"As a engineering team, I want to keep every price, fee, and limit in one config file, so that a future pricing change is a one-line edit, not a UI hunt.
+
+Acceptance criteria:
+- Given a UI component needs a business value (spread, fee, minimum grams, quote validity, funding method), when I inspect its source, then it reads from PRODUCT_CONFIG rather than a literal.
+
+Notes: Verified: config/product.ts and its usages",3 (estimate),Done,Centralized business configuration
+Story,E13-S1,E13,Price engine behind a swappable interface,"As a engineering team, I want to call getCurrentGoldPrice / getHistoricalGoldPrices / getBuyPrice / getSellPrice without knowing whether the data is mocked or real, so that a real provider can replace the mock later without touching the UI.
+
+Acceptance criteria:
+- Given the UI needs a price, when it calls the pricing service, then it never imports the mock provider directly.
+- Given the Supabase gold-price-history table is reachable, when historical prices are requested, then real data is used; when it is not reachable, then a local static fallback is used silently, with no error shown to the customer.
+
+Notes: Verified: services/pricing.ts, services/history.ts, services/supabase.ts",5 (estimate),Done,Gold price engine
+Story,E14-S1,E14,Cash and gold balances are always derived from the ledger,"As a engineering team, I want to never store a cash or gold balance separately from the transaction history, so that the balance can never drift out of sync with what actually happened.
+
+Acceptance criteria:
+- Given any sequence of buys and sells, when I independently recompute cash and gold from the transaction list, then it matches what the UI shows, exactly.
+- Given two orders are submitted in rapid succession, when they process, then they are serialized (one at a time), never applied concurrently against stale state.
+
+Notes: This is the fix for DEF-01/02/03 (duplicate orders, balance drift, oversold gold) — see delivery-pack Defects sheet for the original bugs.",8 (estimate),Done,Transaction engine and ledger integrity
+Story,E15-S1,E15,Seven edge-case states are demonstrable,"As a reviewer / QA, I want to trigger insufficient balance, insufficient gold, price-changed, failed-transaction, provider-unavailable, KYC-incomplete, and volatility states on demand, so that I can verify the app handles failure gracefully, not just the happy path.
+
+Acceptance criteria:
+- Given I use the Prototype controls panel, when I toggle any of the 7 states, then the corresponding screen shows the correct message and blocks the action it should block.
+
+Notes: Verified: components/PhoneShell.tsx controls + corresponding checks in services/engine.ts",5 (estimate),Done,Edge cases
+Story,E16-S1,E16,Seeded demo investor on real prices,"As a reviewer / demo audience, I want to see a realistic account with a mix of winning and losing trading days, so that the demo doesn't look suspiciously perfect or obviously fake.
+
+Acceptance criteria:
+- Given I select 'Existing investor' in the controls, when the app loads, then I see 20 seeded transactions priced against real Egypt 24k gold closes, with at least one losing day and one winning day.
+
+Notes: Verified: data/seed.ts, data/marketHistory.ts",3 (estimate),Done,Realistic demo data
+Story,E17-S1,E17,Core documentation set exists,"As a future engineer / stakeholder, I want to read a PRD, business flow, architecture doc, and assumptions/risk/roadmap without asking the original author, so that the project is understandable without tribal knowledge.
+
+Acceptance criteria:
+- Given I open docs/, when I look for it, then I find 01-PRD.md, 02-business-flow-and-journey.md, 03-architecture-and-data-model.md, and 04-assumptions-compliance-risks-roadmap.md, each matching the current state of the code.
+
+Notes: A financial model and a GTM plan were also requested in the original brief (its §32) but were written for the separate Business Case Lab project, not this prototype — not a gap in this project's own scope.",3 (estimate),Done,Product documentation set
+Story,E18-S1,E18,"Named, documented component library","As a designer / engineer, I want to a component library with named tokens (not just Tailwind utility classes) and documented usage, so that new screens stay visually consistent without someone remembering the exact hex codes and spacing by heart.
+
+Acceptance criteria:
+- Given a new screen is built, when its author looks for guidance, then a references/design-system.md (or equivalent) exists naming every color token, type scale, spacing unit, and component, with do/don't examples.
+- Given the design system exists, when compared to the current app, then every existing screen's colors and spacing are shown to already match it (a documentation pass, not a rebuild).
+
+Notes: UNSIZED: the app is visually consistent today (single palette, Tailwind), but that consistency is not written down anywhere a new contributor could check against. Whether this is worth doing before a real design team is involved is a PM call.",ESTIMATE: unsized,To do,Reusable design system
+Story,E19-S1,E19,Event tracking for the acquisition-to-transaction funnel,"As a Product Manager, I want to see how many people view Gold, start onboarding, complete it, make a first purchase, and repeat, so that I can tell whether the product is working, not just whether it's built.
+
+Acceptance criteria:
+- BLOCKED: acceptance criteria can't be written yet. Depends on which analytics platform Aman uses (or whether one exists at all for the Super App) — this prototype has no event tracking of any kind today. Ask the PM/analytics owner before scoping this.
+
+Notes: Real gap: zero instrumentation exists. The original brief's KPI framework (its §26) names acquisition/activation/engagement/portfolio/transaction/financial/risk metrics, none of which are currently measurable from this codebase.",ESTIMATE: unsized,Blocked,KPI / analytics framework
+Story,E20-S1,E20,"Compliance checklist becomes a tracked, owned artifact","As a Compliance / Legal, I want to a checklist with an owner and a status per item (regulatory classification, custody, KYC/AML, disclosures, tax, data privacy, partner due diligence), not just a narrative paragraph, so that nothing on the list gets silently forgotten before a real launch.
+
+Acceptance criteria:
+- Given the current compliance content in docs/04-assumptions-compliance-risks-roadmap.md, when it's promoted to a tracked artifact, then each item has an owner, a status (TO VALIDATE / in progress / cleared), and a target date.
+- This item explicitly requires a real Compliance/Legal stakeholder to own it — it is not something engineering or product can close out alone.
+
+Notes: The content exists narratively today; the gap is ownership and tracking, not the initial research.",2 (estimate),To do,"Compliance checklist as a standalone, owned artifact"
+Story,E21-S1,E21,Reusable draw-to-sign component,"As a engineering team, I want to capture a signature as a canvas the customer draws on with finger or mouse, reusable across any flow that needs consent evidence, so that onboarding and future consent flows don't each reinvent signature capture.
+
+Acceptance criteria:
+- Given a screen renders the signature pad, when the customer draws a stroke, then the pad reports a captured signature and shows a 'Captured' status; when they tap Clear, then it reports null and reverts to 'Required'.
+- Given the pad has no stroke yet, when the surrounding step is evaluated, then any Continue/Submit button gated on it stays disabled.
+
+Notes: Verified: components/ui.tsx (SignaturePad). Client-side only, not persisted to the store, consistent with the other simulated-capture steps (ID photo, selfie).",3 (estimate),Done,eKYC signature capture
+Story,E21-S2,E21,Brand-new customer signs to authorize their eKYC declaration,"As a brand-new customer, I want to review a summary of what was captured (ID, selfie match) and sign to confirm it's accurate, so that my onboarding produces real evidence of consent, not just a captured photo nobody signed off on.
+
+Acceptance criteria:
+- Given I've captured my ID and selfie, when I reach the eKYC signature step, then I see a summary card (name, masked national ID, ID-captured status, selfie-match status) above the signature pad.
+- Given the pad is empty, when I try to continue, then Continue is disabled; given I draw a signature, when I tap Continue, then I proceed to the prepaid-card step.
+
+Notes: Verified end-to-end in browser: OnboardingNew.tsx step 8 of 11. Positioned after ID + selfie capture, before card issuance.",3 (estimate),Done,eKYC signature capture
+Story,E21-S3,E21,Existing customer signs to authorize adding Gold Investment,"As a existing Aman customer new to Gold, I want to sign to authorize enrolling in the Gold product, since my core identity KYC is already on file, so that Aman has consent evidence for this specific product, without repeating identity verification I've already done.
+
+Acceptance criteria:
+- Given I check 'I have read and agree to the terms', when the checkbox is ticked, then a signature pad appears labeled for authorizing Gold Investment.
+- Given the signature pad is empty, when I try to tap Start Investing, then it's disabled; given I sign, when I tap Start Investing, then onboarding completes.
+
+Notes: Verified end-to-end in browser: Onboarding.tsx (OnboardingExisting) step 6. Lighter than E21-S2 since identity eKYC is not repeated for existing customers.",2 (estimate),Done,eKYC signature capture
