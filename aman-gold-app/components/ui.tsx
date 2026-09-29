@@ -175,9 +175,15 @@ export function Stepper({ step, total }: { step: number; total: number }) {
 export const DemoTag = () => <span className="rounded bg-gold-soft px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-gold">DEMO</span>;
 
 /* ---------- Gold bottom tab bar ---------- */
-const TABS: { name: ScreenName; label: string; icon: string }[] = [
+/** Drawn as SVG: the "☺" glyph renders as a colour emoji on iOS. */
+const ProfileIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4" /><path d="M4 21c1.4-3.8 4.4-5.5 8-5.5s6.6 1.7 8 5.5" />
+  </svg>
+);
+const TABS: { name: ScreenName; label: string; icon: ReactNode }[] = [
   { name: "dashboard", label: "Gold", icon: "◈" }, { name: "portfolio", label: "Portfolio", icon: "◔" },
-  { name: "transactions", label: "Activity", icon: "☰" }, { name: "profile", label: "Profile", icon: "☺" },
+  { name: "transactions", label: "Activity", icon: "☰" }, { name: "profile", label: "Profile", icon: <ProfileIcon /> },
 ];
 export function GoldTabs() {
   const nav = useNav();

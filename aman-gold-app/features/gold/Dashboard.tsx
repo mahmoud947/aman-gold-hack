@@ -6,6 +6,21 @@ import { useStore } from "../../services/store";
 import { egp, grams, pct, signedEgp } from "../../utils/format";
 import { minPurchaseEgp } from "../../services/engine";
 
+/** Cash in (arrow into tray) / cash out (arrow out of tray) shortcut on the portfolio card. */
+function CashButton({ dir, onClick, disabled }: { dir: "in" | "out"; onClick: () => void; disabled?: boolean }) {
+  const label = dir === "in" ? "Top up" : "Withdraw";
+  return (
+    <button aria-label={label} title={label} disabled={disabled} onClick={onClick} className="flex flex-col items-center gap-1 disabled:opacity-40">
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 ring-1 ring-white/30">
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          {dir === "in" ? <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14" /> : <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 20h14" />}
+        </svg>
+      </span>
+      <span className="text-[10px] font-semibold text-white/80">{label}</span>
+    </button>
+  );
+}
+
 export default function Dashboard() {
   const nav = useNav();
   const { wallet: w, buyPrice, sellPrice, cash, providerUp, kycOk, volatility, customer } = useStore();
@@ -28,6 +43,13 @@ export default function Dashboard() {
               <div className={`text-[18px] font-extrabold ${up ? "text-green-300" : "text-red-300"}`}>{empty ? "EGP 0" : signedEgp(w.unrealizedPnl)}</div>
               <div className={`text-[12px] font-bold ${up ? "text-green-300" : "text-red-300"}`}>{empty ? "—" : pct(w.unrealizedPct)}</div></div>
           </div>
+          <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-3">
+            <div><div className="text-[11px] text-white/60">Available balance</div><div className="text-[18px] font-extrabold">{egp(cash, 2)}</div></div>
+            <div className="flex gap-4">
+              <CashButton dir="in" onClick={() => nav.push("cash", { dir: "in" })} />
+              <CashButton dir="out" disabled={cash <= 0} onClick={() => nav.push("cash", { dir: "out" })} />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -46,7 +68,6 @@ export default function Dashboard() {
         </Card>
 
         <Card>
-          <Row k="Available balance" v={egp(cash, 2)} />
           <Row k="Average buy price" v={empty ? "—" : `${egp(w.avgBuyPrice, 2)} / g`} />
           <Row k="Total invested" v={egp(w.costBasis)} />
           <button className="mt-2 w-full text-[13px] font-bold text-aman" onClick={() => nav.push("portfolio")}>View portfolio ›</button>

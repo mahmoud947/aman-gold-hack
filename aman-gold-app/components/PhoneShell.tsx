@@ -8,6 +8,7 @@ import Portfolio from "../features/portfolio/Portfolio";
 import DailyPnl from "../features/portfolio/DailyPnl";
 import { Transactions, TransactionDetail } from "../features/transactions/Transactions";
 import Profile from "../features/profile/Profile";
+import Cash from "../features/cash/Cash";
 import { StoreProvider, useStore } from "../services/store";
 import { NavProvider, useNav } from "./nav";
 
@@ -25,6 +26,7 @@ function Router() {
     case "txDetail": return <TransactionDetail id={route.params?.id ?? ""} />;
     case "profile": return <Profile />;
     case "dailyPnl": return <DailyPnl />;
+    case "cash": return <Cash key={route.params?.dir} dir={route.params?.dir === "out" ? "out" : "in"} />;
   }
 }
 
@@ -51,7 +53,7 @@ function Controls() {
           <button className={`${btn} ${s.mode === "brandNew" ? "!bg-aman !text-white" : ""}`} onClick={() => { s.setMode("brandNew"); nav.reset("home"); }}>Brand-new customer (nothing on file)</button>
           <button className={`${btn} ${s.mode === "existing" ? "!bg-aman !text-white" : ""}`} onClick={() => { s.setMode("existing"); nav.reset("home"); }}>Existing investor (Ahmed)</button>
         </div>
-        <div className="mt-1 text-[11px] text-navy/50">Existing customer: short onboarding that reuses data on file. Brand-new customer: full 11-step onboarding (mobile, code, PIN, details, ID, selfie, eKYC signature, prepaid card and top-up, agreements). Existing: 20 seeded transactions (24 Aug to 21 Sep 2026) priced on real daily Egypt 24k gold prices, with winning and losing sell days. Live price then moves as a simulation.</div>
+        <div className="mt-1 text-[11px] text-navy/50">Existing customer: short onboarding that reuses data on file. Brand-new customer: full 10-step onboarding (mobile, code, PIN, details, ID, selfie, eKYC signature, agreements). Existing: 20 seeded transactions (24 Aug to 21 Sep 2026) priced on real daily Egypt 24k gold prices, with winning and losing sell days. Live price then moves as a simulation.</div>
       </div>
       <div>
         <Toggle label="Provider unavailable" hint="Disables trading, shows the unavailable message" on={!s.providerUp} onChange={(v) => s.setProviderUp(!v)} />

@@ -48,6 +48,7 @@ interface Store extends Persisted {
   executeBuy: (q: BuyQuote) => Promise<Transaction>;
   executeSell: (q: SellQuote) => Promise<Transaction>;
   topUp: (amount: number) => void;
+  withdraw: (amount: number) => void;
   shock: (pct: number) => void;
   setProviderUp: (v: boolean) => void;
 }
@@ -127,12 +128,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const executeSell = useCallback((q: SellQuote) => execute("SELL", q), [execute]);
 
   const topUp = useCallback((amount: number) => { apply((p) => ({ ...p, topUps: p.topUps + amount })); }, [apply]);
+  // Cash out reduces the same running total, so the balance stays derived from opening cash + net top-ups - buys + sells.
+  const withdraw = useCallback((amount: number) => { apply((p) => ({ ...p, topUps: p.topUps - amount })); }, [apply]);
   const shock = useCallback((pct: number) => marketControls.shock(pct), []);
   const setProviderUp = useCallback((v: boolean) => marketControls.setAvailable(v), []);
 
   const value: Store = {
     ...s, version, providerUp: isProviderAvailable(), cash, wallet, buyPrice, sellPrice, todayBuyEgp: todayBuyOf(s), kycOk: kycOkOf(s),
-    setMode, set, completeOnboarding, completeKyc, makeQuote, executeBuy, executeSell, topUp, shock, setProviderUp,
+    setMode, set, completeOnboarding, completeKyc, makeQuote, executeBuy, executeSell, topUp, withdraw, shock, setProviderUp,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
