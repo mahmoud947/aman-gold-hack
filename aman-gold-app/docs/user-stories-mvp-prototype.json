@@ -1,0 +1,141 @@
+{
+  "epics": [
+    { "id": "E1", "title": "Discover Gold from Home", "summary": "Entry point on the Aman Super App home screen into the Gold product.", "status": "Done" },
+    { "id": "E2", "title": "Onboarding: existing Aman customer", "summary": "Short onboarding that reuses KYC data already on file.", "status": "Done" },
+    { "id": "E3", "title": "Onboarding: brand-new customer", "summary": "Full capture flow when nothing is on file yet (mobile, PIN, ID, selfie, prepaid card).", "status": "Done" },
+    { "id": "E4", "title": "Gold Home / Dashboard", "summary": "Portfolio value, holdings, unrealized P&L, live buy/sell price at a glance.", "status": "Done" },
+    { "id": "E5", "title": "Gold price chart", "summary": "1D/1W/1M/3M/1Y price history, DB-backed for the daily ranges with a local fallback.", "status": "Done" },
+    { "id": "E6", "title": "Buy gold", "summary": "Buy by grams or by EGP, in 0.1g steps, with a price-locked order summary and PIN confirmation.", "status": "Done" },
+    { "id": "E7", "title": "Sell gold", "summary": "Sell by grams or by EGP, proceeds credited to the Aman prepaid balance.", "status": "Done" },
+    { "id": "E8", "title": "Portfolio", "summary": "Holdings, asset allocation, today's realized P&L, cumulative realized P&L chart.", "status": "Done" },
+    { "id": "E9", "title": "Daily P&L calendar", "summary": "Calendar and bar views of realized P&L per day.", "status": "Done" },
+    { "id": "E10", "title": "Transaction history and details", "summary": "List of past orders and a detail view with before/after balances.", "status": "Done" },
+    { "id": "E11", "title": "Profile", "summary": "Customer info, KYC status, linked payment method, documents, FAQ.", "status": "Done" },
+    { "id": "E12", "title": "Centralized business configuration", "summary": "Spread, fee, limits, quote validity, funding method — one config, never hardcoded in UI.", "status": "Done" },
+    { "id": "E13", "title": "Gold price engine", "summary": "getCurrentGoldPrice / getHistoricalGoldPrices / getBuyPrice / getSellPrice behind one interface, swappable for a real provider.", "status": "Done" },
+    { "id": "E14", "title": "Transaction engine and ledger integrity", "summary": "Quoting, validation, average-cost wallet math; cash and gold always derived from the ledger, never stored separately.", "status": "Done" },
+    { "id": "E15", "title": "Edge cases", "summary": "Insufficient balance, insufficient gold, price changed, failed transaction, provider unavailable, KYC incomplete, market volatility.", "status": "Done" },
+    { "id": "E16", "title": "Realistic demo data", "summary": "Seeded investor history on real market prices with a mix of winning and losing days.", "status": "Done" },
+    { "id": "E17", "title": "Product documentation set", "summary": "PRD, business flow, architecture, assumptions/compliance/risk/roadmap.", "status": "Done" },
+    { "id": "E18", "title": "Reusable design system", "summary": "A named, documented component library (colors, type, spacing, components) beyond ad hoc Tailwind classes — not built.", "status": "To do" },
+    { "id": "E19", "title": "KPI / analytics framework", "summary": "Event tracking and a KPI dashboard for acquisition, activation, engagement, transactions, financial, risk metrics — not built at all.", "status": "To do" },
+    { "id": "E20", "title": "Compliance checklist as a standalone, owned artifact", "summary": "Currently a narrative list inside one doc; not a tracked, assigned checklist with real legal sign-off.", "status": "To do" },
+    { "id": "E21", "title": "eKYC signature capture", "summary": "Draw-to-sign consent capture wired into both onboarding flows, closing the gap where 'agree to terms' was only ever a checkbox.", "status": "Done" }
+  ],
+  "stories": [
+    { "id": "E1-S1", "epic": "E1", "title": "Gold entry point on Home", "role": "Aman Super App user", "goal": "see a Gold tile with the live price on my Home screen", "benefit": "I discover the product without hunting for it",
+      "acceptance_criteria": ["Given I open Aman Home, when the page loads, then I see a Gold strip showing the current price per gram.", "Given I tap the Gold strip, when I am not yet onboarded, then I land on the Gold landing page; when I am onboarded, then I land directly on the Gold dashboard."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: features/home/Home.tsx" },
+    { "id": "E1-S2", "epic": "E1", "title": "Gold landing page explains the product", "role": "prospective Gold customer", "goal": "see price, chart, fees, and risk disclosure before I commit to onboarding", "benefit": "I understand what I'm signing up for",
+      "acceptance_criteria": ["Given I open the landing page, when it renders, then I see live buy/sell price, a price chart, benefits, fees, and a risk disclaimer.", "Given I tap Start Investing, when I am not onboarded, then onboarding begins."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: features/gold/Landing.tsx" },
+
+    { "id": "E2-S1", "epic": "E2", "title": "Account check reuses data on file", "role": "existing Aman customer", "goal": "not re-enter information Aman already has", "benefit": "onboarding is fast",
+      "acceptance_criteria": ["Given I have KYC data on file, when I reach the account check step, then my name, mobile, and KYC fields show as already on file.", "Given a field is missing, when I reach that step, then only the missing field is requested."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: features/onboarding/Onboarding.tsx" },
+    { "id": "E2-S2", "epic": "E2", "title": "7-step existing-customer onboarding completes", "role": "existing Aman customer", "goal": "finish onboarding in a handful of steps", "benefit": "I reach the Gold dashboard quickly",
+      "acceptance_criteria": ["Given I complete mobile verification, identity review, payment method selection, and agreements, when I finish, then I land on an empty Gold dashboard ready to buy."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "" },
+
+    { "id": "E3-S1", "epic": "E3", "title": "Brand-new customer captures full identity", "role": "person with no Aman profile", "goal": "provide mobile, PIN, personal details, ID (front/back), and a selfie", "benefit": "Aman can verify who I am before I invest",
+      "acceptance_criteria": ["Given I am a brand-new customer, when I walk the 11-step flow, then each step's Continue button is disabled until that step's data is valid (mismatched PIN, incomplete ID capture, etc. all block progress).", "Given I complete all 11 steps, when I finish, then a masked profile and an Aman prepaid card are created."],
+      "points": 8, "points_label": "estimate", "status": "Done", "notes": "Verified: features/onboarding/OnboardingNew.tsx" },
+    { "id": "E3-S2", "epic": "E3", "title": "Prepaid card issued with an optional first top-up", "role": "brand-new customer", "goal": "get an Aman prepaid card and add money via InstaPay during onboarding", "benefit": "I can buy gold right after I finish onboarding",
+      "acceptance_criteria": ["Given I reach the card step, when I request a card, then a masked card is shown.", "Given I choose a top-up amount, when I finish onboarding, then my opening balance equals that top-up (or zero if I skipped it)."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "" },
+
+    { "id": "E4-S1", "epic": "E4", "title": "Dashboard shows portfolio value and holdings at a glance", "role": "Gold customer", "goal": "see my portfolio value, grams held, and unrealized P&L the moment I open Gold", "benefit": "I know where I stand without digging through screens",
+      "acceptance_criteria": ["Given I have holdings, when I open the dashboard, then I see portfolio value, grams held, and unrealized P&L with a percentage.", "Given I have zero holdings, when I open the dashboard, then Sell is disabled and I'm invited to buy from the minimum (0.1g)."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: features/gold/Dashboard.tsx" },
+
+    { "id": "E5-S1", "epic": "E5", "title": "Price chart across five ranges", "role": "Gold customer", "goal": "switch between 1D/1W/1M/3M/1Y views of the gold price", "benefit": "I can judge whether now is a good time to buy or sell",
+      "acceptance_criteria": ["Given I select a range, when the chart redraws, then low/high and percentage change reflect that range.", "Given the 1W/1M/3M/1Y ranges are shown, when data loads, then real daily closes from the Aman Gold price database back the chart, falling back to local reference data if the database is unreachable, with a caption naming which source was used."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: components/PriceChart.tsx, services/history.ts" },
+
+    { "id": "E6-S1", "epic": "E6", "title": "Buy by grams in 0.1g steps", "role": "Gold customer", "goal": "buy a whole number of 0.1g steps", "benefit": "my order matches what the provider can actually fulfil",
+      "acceptance_criteria": ["Given I enter an amount that isn't a 0.1g multiple, when I try to proceed, then I see a step-size validation message.", "Given I enter a valid amount, when I review the order, then I see quantity, price, fee, total, and a 30-second price lock countdown."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: features/trade/Trade.tsx, services/engine.ts" },
+    { "id": "E6-S2", "epic": "E6", "title": "Buy by EGP rounds down to the nearest step", "role": "Gold customer", "goal": "enter an EGP amount and have it convert to a valid gram quantity", "benefit": "I don't need to do the gram math myself",
+      "acceptance_criteria": ["Given I enter an EGP amount, when it doesn't divide evenly into 0.1g steps, then the app rounds down and shows the leftover balance that stays uninvested."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "" },
+    { "id": "E6-S3", "epic": "E6", "title": "Order confirms with PIN and shows before/after balances", "role": "Gold customer", "goal": "confirm my order with a PIN and see exactly what changed", "benefit": "I trust that the transaction did what it says",
+      "acceptance_criteria": ["Given I enter a valid PIN, when the order processes, then I see a success screen with a transaction ID and cash/gold balances before and after.", "Given I tap PIN digits rapidly or more than 4 times, when the order submits, then exactly one transaction is created, never more."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Regression-tested after DEF-01 (duplicate-order bug); see delivery-pack Defects sheet." },
+
+    { "id": "E7-S1", "epic": "E7", "title": "Sell by grams or by EGP", "role": "Gold customer", "goal": "sell either a gram amount or an EGP value of my holdings", "benefit": "I can express my sell order however is natural to me",
+      "acceptance_criteria": ["Given I choose to sell by EGP, when I enter a value, then it converts to the nearest 0.1g step at the current sell price.", "Given I try to sell more than I hold, when I review the order, then I see an insufficient-gold message and cannot proceed."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: features/trade/Trade.tsx" },
+    { "id": "E7-S2", "epic": "E7", "title": "Sell proceeds credited to the prepaid balance", "role": "Gold customer", "goal": "see my proceeds land in my Aman balance immediately", "benefit": "I know the money is available right away",
+      "acceptance_criteria": ["Given a sell order completes, when I view the success screen, then it states the amount was credited to my Aman balance and shows realized P&L for that sale."],
+      "points": 2, "points_label": "estimate", "status": "Done", "notes": "" },
+
+    { "id": "E8-S1", "epic": "E8", "title": "Portfolio shows asset allocation", "role": "Gold customer", "goal": "see what share of my Aman balance is in gold versus cash", "benefit": "I understand my overall exposure, not just my gold holdings",
+      "acceptance_criteria": ["Given I open Portfolio, when it loads, then I see a Gold-vs-Cash allocation donut with percentages that sum to 100%."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: features/portfolio/Portfolio.tsx" },
+    { "id": "E8-S2", "epic": "E8", "title": "Cumulative realized P&L chart", "role": "Gold customer", "goal": "see my realized profit or loss accumulate over the last 30 days", "benefit": "I can see whether my trading has been net positive",
+      "acceptance_criteria": ["Given I have at least one sale, when I view Portfolio, then the cumulative P&L chart's final point equals the sum of every day's realized P&L in the Daily P&L calendar for the same period."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified against services/pnl.ts; reconciliation bug (DEF-04, a daylight-saving date error) found and fixed during development." },
+
+    { "id": "E9-S1", "epic": "E9", "title": "Daily P&L calendar", "role": "Gold customer", "goal": "see which days I made or lost money", "benefit": "I can review my trading pattern day by day",
+      "acceptance_criteria": ["Given I open Daily P&L, when a month renders, then each day with a sale shows realized P&L in green (profit) or red (loss); days with no sale show 0.00.", "Given I sell gold today, when I return to this screen, then today's cell updates live to reflect that sale."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: features/portfolio/DailyPnl.tsx" },
+
+    { "id": "E10-S1", "epic": "E10", "title": "Transaction list", "role": "Gold customer", "goal": "see all my past buys and sells, newest first", "benefit": "I can review my trading history",
+      "acceptance_criteria": ["Given I open Activity, when the list renders, then each row shows type, quantity, price, gross amount, and status."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: features/transactions/Transactions.tsx" },
+    { "id": "E10-S2", "epic": "E10", "title": "Transaction detail shows before/after balances", "role": "Gold customer", "goal": "open any transaction and see exactly what it changed", "benefit": "I can verify my cash and gold moved the way I expect",
+      "acceptance_criteria": ["Given I open a transaction, when the detail view loads, then I see cash balance before/after and gold balance before/after, plus fee and net amount."],
+      "points": 2, "points_label": "estimate", "status": "Done", "notes": "" },
+
+    { "id": "E11-S1", "epic": "E11", "title": "Profile shows account and KYC status", "role": "Gold customer", "goal": "see my name, mobile, KYC status, and linked payment method", "benefit": "I can confirm my account is set up correctly",
+      "acceptance_criteria": ["Given I open Profile, when it loads, then I see KYC status (Complete/Incomplete), masked ID, linked card, and current prepaid balance."],
+      "points": 2, "points_label": "estimate", "status": "Done", "notes": "Verified: features/profile/Profile.tsx" },
+
+    { "id": "E12-S1", "epic": "E12", "title": "No business value is hardcoded in a screen component", "role": "engineering team", "goal": "keep every price, fee, and limit in one config file", "benefit": "a future pricing change is a one-line edit, not a UI hunt",
+      "acceptance_criteria": ["Given a UI component needs a business value (spread, fee, minimum grams, quote validity, funding method), when I inspect its source, then it reads from PRODUCT_CONFIG rather than a literal."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: config/product.ts and its usages" },
+
+    { "id": "E13-S1", "epic": "E13", "title": "Price engine behind a swappable interface", "role": "engineering team", "goal": "call getCurrentGoldPrice / getHistoricalGoldPrices / getBuyPrice / getSellPrice without knowing whether the data is mocked or real", "benefit": "a real provider can replace the mock later without touching the UI",
+      "acceptance_criteria": ["Given the UI needs a price, when it calls the pricing service, then it never imports the mock provider directly.", "Given the Supabase gold-price-history table is reachable, when historical prices are requested, then real data is used; when it is not reachable, then a local static fallback is used silently, with no error shown to the customer."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: services/pricing.ts, services/history.ts, services/supabase.ts" },
+
+    { "id": "E14-S1", "epic": "E14", "title": "Cash and gold balances are always derived from the ledger", "role": "engineering team", "goal": "never store a cash or gold balance separately from the transaction history", "benefit": "the balance can never drift out of sync with what actually happened",
+      "acceptance_criteria": ["Given any sequence of buys and sells, when I independently recompute cash and gold from the transaction list, then it matches what the UI shows, exactly.", "Given two orders are submitted in rapid succession, when they process, then they are serialized (one at a time), never applied concurrently against stale state."],
+      "points": 8, "points_label": "estimate", "status": "Done", "notes": "This is the fix for DEF-01/02/03 (duplicate orders, balance drift, oversold gold) — see delivery-pack Defects sheet for the original bugs." },
+
+    { "id": "E15-S1", "epic": "E15", "title": "Seven edge-case states are demonstrable", "role": "reviewer / QA", "goal": "trigger insufficient balance, insufficient gold, price-changed, failed-transaction, provider-unavailable, KYC-incomplete, and volatility states on demand", "benefit": "I can verify the app handles failure gracefully, not just the happy path",
+      "acceptance_criteria": ["Given I use the Prototype controls panel, when I toggle any of the 7 states, then the corresponding screen shows the correct message and blocks the action it should block."],
+      "points": 5, "points_label": "estimate", "status": "Done", "notes": "Verified: components/PhoneShell.tsx controls + corresponding checks in services/engine.ts" },
+
+    { "id": "E16-S1", "epic": "E16", "title": "Seeded demo investor on real prices", "role": "reviewer / demo audience", "goal": "see a realistic account with a mix of winning and losing trading days", "benefit": "the demo doesn't look suspiciously perfect or obviously fake",
+      "acceptance_criteria": ["Given I select 'Existing investor' in the controls, when the app loads, then I see 20 seeded transactions priced against real Egypt 24k gold closes, with at least one losing day and one winning day."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: data/seed.ts, data/marketHistory.ts" },
+
+    { "id": "E17-S1", "epic": "E17", "title": "Core documentation set exists", "role": "future engineer / stakeholder", "goal": "read a PRD, business flow, architecture doc, and assumptions/risk/roadmap without asking the original author", "benefit": "the project is understandable without tribal knowledge",
+      "acceptance_criteria": ["Given I open docs/, when I look for it, then I find 01-PRD.md, 02-business-flow-and-journey.md, 03-architecture-and-data-model.md, and 04-assumptions-compliance-risks-roadmap.md, each matching the current state of the code."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "A financial model and a GTM plan were also requested in the original brief (its §32) but were written for the separate Business Case Lab project, not this prototype — not a gap in this project's own scope." },
+
+    { "id": "E18-S1", "epic": "E18", "title": "Named, documented component library", "role": "designer / engineer", "goal": "a component library with named tokens (not just Tailwind utility classes) and documented usage", "benefit": "new screens stay visually consistent without someone remembering the exact hex codes and spacing by heart",
+      "acceptance_criteria": ["Given a new screen is built, when its author looks for guidance, then a references/design-system.md (or equivalent) exists naming every color token, type scale, spacing unit, and component, with do/don't examples.", "Given the design system exists, when compared to the current app, then every existing screen's colors and spacing are shown to already match it (a documentation pass, not a rebuild)."],
+      "points": null, "points_label": "estimate", "status": "To do", "notes": "UNSIZED: the app is visually consistent today (single palette, Tailwind), but that consistency is not written down anywhere a new contributor could check against. Whether this is worth doing before a real design team is involved is a PM call." },
+
+    { "id": "E19-S1", "epic": "E19", "title": "Event tracking for the acquisition-to-transaction funnel", "role": "Product Manager", "goal": "see how many people view Gold, start onboarding, complete it, make a first purchase, and repeat", "benefit": "I can tell whether the product is working, not just whether it's built",
+      "acceptance_criteria": ["BLOCKED: acceptance criteria can't be written yet. Depends on which analytics platform Aman uses (or whether one exists at all for the Super App) — this prototype has no event tracking of any kind today. Ask the PM/analytics owner before scoping this."],
+      "points": null, "points_label": "estimate", "status": "Blocked", "notes": "Real gap: zero instrumentation exists. The original brief's KPI framework (its §26) names acquisition/activation/engagement/portfolio/transaction/financial/risk metrics, none of which are currently measurable from this codebase." },
+
+    { "id": "E20-S1", "epic": "E20", "title": "Compliance checklist becomes a tracked, owned artifact", "role": "Compliance / Legal", "goal": "a checklist with an owner and a status per item (regulatory classification, custody, KYC/AML, disclosures, tax, data privacy, partner due diligence), not just a narrative paragraph", "benefit": "nothing on the list gets silently forgotten before a real launch",
+      "acceptance_criteria": ["Given the current compliance content in docs/04-assumptions-compliance-risks-roadmap.md, when it's promoted to a tracked artifact, then each item has an owner, a status (TO VALIDATE / in progress / cleared), and a target date.", "This item explicitly requires a real Compliance/Legal stakeholder to own it — it is not something engineering or product can close out alone."],
+      "points": 2, "points_label": "estimate", "status": "To do", "notes": "The content exists narratively today; the gap is ownership and tracking, not the initial research." },
+
+    { "id": "E21-S1", "epic": "E21", "title": "Reusable draw-to-sign component", "role": "engineering team", "goal": "capture a signature as a canvas the customer draws on with finger or mouse, reusable across any flow that needs consent evidence", "benefit": "onboarding and future consent flows don't each reinvent signature capture",
+      "acceptance_criteria": ["Given a screen renders the signature pad, when the customer draws a stroke, then the pad reports a captured signature and shows a 'Captured' status; when they tap Clear, then it reports null and reverts to 'Required'.", "Given the pad has no stroke yet, when the surrounding step is evaluated, then any Continue/Submit button gated on it stays disabled."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified: components/ui.tsx (SignaturePad). Client-side only, not persisted to the store, consistent with the other simulated-capture steps (ID photo, selfie)." },
+    { "id": "E21-S2", "epic": "E21", "title": "Brand-new customer signs to authorize their eKYC declaration", "role": "brand-new customer", "goal": "review a summary of what was captured (ID, selfie match) and sign to confirm it's accurate", "benefit": "my onboarding produces real evidence of consent, not just a captured photo nobody signed off on",
+      "acceptance_criteria": ["Given I've captured my ID and selfie, when I reach the eKYC signature step, then I see a summary card (name, masked national ID, ID-captured status, selfie-match status) above the signature pad.", "Given the pad is empty, when I try to continue, then Continue is disabled; given I draw a signature, when I tap Continue, then I proceed to the prepaid-card step."],
+      "points": 3, "points_label": "estimate", "status": "Done", "notes": "Verified end-to-end in browser: OnboardingNew.tsx step 8 of 11. Positioned after ID + selfie capture, before card issuance." },
+    { "id": "E21-S3", "epic": "E21", "title": "Existing customer signs to authorize adding Gold Investment", "role": "existing Aman customer new to Gold", "goal": "sign to authorize enrolling in the Gold product, since my core identity KYC is already on file", "benefit": "Aman has consent evidence for this specific product, without repeating identity verification I've already done",
+      "acceptance_criteria": ["Given I check 'I have read and agree to the terms', when the checkbox is ticked, then a signature pad appears labeled for authorizing Gold Investment.", "Given the signature pad is empty, when I try to tap Start Investing, then it's disabled; given I sign, when I tap Start Investing, then onboarding completes."],
+      "points": 2, "points_label": "estimate", "status": "Done", "notes": "Verified end-to-end in browser: Onboarding.tsx (OnboardingExisting) step 6. Lighter than E21-S2 since identity eKYC is not repeated for existing customers." }
+  ],
+  "tasks": []
+}

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { PRODUCT_CONFIG } from "../../config/product";
 import { useNav } from "../../components/nav";
-import { Alert, Button, Card, Field, Pill, Row, Screen, Sheet, Stepper } from "../../components/ui";
+import { Alert, Button, Card, Field, Pill, Row, Screen, Sheet, SignaturePad, Stepper } from "../../components/ui";
 import { useStore } from "../../services/store";
 
 /**
@@ -10,7 +10,7 @@ import { useStore } from "../../services/store";
  * All checks here are DEMO validations. The list of required data is a configurable checklist
  * (config/product.ts), NOT a statement of Egyptian regulatory requirements: to be validated with Compliance.
  */
-const STEPS = ["Introduction", "Mobile number", "Verification code", "Create PIN", "Personal details", "ID document", "Selfie check", "Aman prepaid card", "Agreements", "Done"];
+const STEPS = ["Introduction", "Mobile number", "Verification code", "Create PIN", "Personal details", "ID document", "Selfie check", "eKYC signature", "Aman prepaid card", "Agreements", "Done"];
 const TOTAL = STEPS.length;
 const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
 const maskId = (id: string) => (id.length >= 8 ? `${id.slice(0, 4)}${"*".repeat(id.length - 8)}${id.slice(-4)}` : id);
@@ -24,6 +24,7 @@ export default function OnboardingNew() {
   const [front, setFront] = useState(false);
   const [back, setBack] = useState(false);
   const [selfie, setSelfie] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
   const [cardIssued, setCardIssued] = useState(false);
   const [topUp, setTopUp] = useState(0);
   const [agree, setAgree] = useState(false);
@@ -51,8 +52,9 @@ export default function OnboardingNew() {
     step === 5 ? <Button disabled={!detailsOk} onClick={next}>Continue</Button> :
     step === 6 ? <Button disabled={!(front && back)} onClick={next}>Continue</Button> :
     step === 7 ? <Button disabled={!selfie} onClick={next}>Continue</Button> :
-    step === 8 ? <Button disabled={!cardIssued} onClick={next}>Continue</Button> :
-    step === 9 ? <Button disabled={!agree} onClick={next}>Start Investing</Button> :
+    step === 8 ? <Button disabled={!signature} onClick={next}>Continue</Button> :
+    step === 9 ? <Button disabled={!cardIssued} onClick={next}>Continue</Button> :
+    step === 10 ? <Button disabled={!agree} onClick={next}>Start Investing</Button> :
     <Button variant="gold" onClick={finish}>View Gold</Button>;
 
   return (
@@ -116,6 +118,19 @@ export default function OnboardingNew() {
         </>)}
 
         {step === 8 && (<>
+          <Alert tone="info">Your identity has been verified electronically (eKYC): National ID captured and a live selfie matched against it. Sign below to confirm the details you provided are accurate and to authorize your eKYC declaration.</Alert>
+          <Card>
+            <div className="mb-1 text-[14px] font-bold">eKYC summary</div>
+            <Row k="Name on ID" v={f.name || "—"} />
+            <Row k="National ID" v={maskId(f.nid)} />
+            <Row k="ID document" v={<Pill tone="good">Captured</Pill>} />
+            <Row k="Selfie / liveness match" v={<Pill tone="good">Verified</Pill>} />
+          </Card>
+          <SignaturePad value={signature} onChange={setSignature} />
+          <div className="text-[11px] text-navy/40">Signature is captured electronically as part of Aman's eKYC process. Legal validity of e-signatures for this flow is to be confirmed with Compliance.</div>
+        </>)}
+
+        {step === 9 && (<>
           <Alert tone="info">Gold purchases are paid from your Aman prepaid card balance. Add money via {PRODUCT_CONFIG.payment.topUpRail}.</Alert>
           {!cardIssued ? (
             <Card><div className="text-[14px] font-bold">Your Aman prepaid card</div><div className="my-2 text-[13px] text-navy/60">We'll issue a virtual card linked to your new profile. Demo: no card is really issued.</div><Button onClick={() => setCardIssued(true)}>Get my Aman prepaid card</Button></Card>
@@ -129,7 +144,7 @@ export default function OnboardingNew() {
           </>)}
         </>)}
 
-        {step === 9 && (<>
+        {step === 10 && (<>
           <Card>
             {["Terms & Conditions", "Gold Investment Terms", "Fees", "Risk Disclosure", "Privacy Policy"].map((d) => (
               <button key={d} onClick={() => setDoc(d)} className="flex w-full items-center justify-between border-b border-black/5 py-3 text-left text-[14px] font-semibold last:border-0">{d}<span className="text-aman">›</span></button>
@@ -142,7 +157,7 @@ export default function OnboardingNew() {
           </Sheet>
         </>)}
 
-        {step === 10 && (
+        {step === 11 && (
           <div className="pt-6 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-4xl text-good">✓</div>
             <div className="mt-4 text-[22px] font-black">You're ready to invest in gold</div>

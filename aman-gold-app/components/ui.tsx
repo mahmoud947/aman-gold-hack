@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { useRef, type PointerEvent, type ReactNode } from "react";
 import type { TxStatus } from "../types";
 import { useNav, type ScreenName } from "./nav";
 
@@ -80,6 +80,79 @@ export function Field({ label, value, onChange, placeholder, readOnly, hint, typ
         className={`w-full rounded-xl border border-black/10 px-3 py-3 text-[15px] outline-none focus:border-aman ${readOnly ? "bg-canvas text-navy/70" : "bg-white"}`} />
       {hint && <span className="mt-1 block text-[11px] text-navy/50">{hint}</span>}
     </label>
+  );
+}
+
+/** Draw-to-sign pad used for e-signature capture (eKYC consent, agreements). Reports a PNG data URL once a stroke is drawn, or null when cleared. */
+export function SignaturePad({ value, onChange, label = "Your signature" }: { value: string | null; onChange: (dataUrl: string | null) => void; label?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawing = useRef(false);
+  const hasStroke = useRef(false);
+
+  const pos = (e: PointerEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const start = (e: PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    drawing.current = true;
+    const { x, y } = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    canvas.setPointerCapture(e.pointerId);
+  };
+
+  const move = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (!drawing.current) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    const { x, y } = pos(e);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#1e2b4a";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    hasStroke.current = true;
+  };
+
+  const end = () => {
+    if (!drawing.current) return;
+    drawing.current = false;
+    if (hasStroke.current && canvasRef.current) onChange(canvasRef.current.toDataURL("image/png"));
+  };
+
+  const clear = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasStroke.current = false;
+    onChange(null);
+  };
+
+  return (
+    <Card>
+      <div className="mb-2 flex items-center justify-between">
+        <div className="text-[14px] font-bold">{label}</div>
+        {value ? <Pill tone="good">Captured</Pill> : <Pill tone="neutral">Required</Pill>}
+      </div>
+      <canvas
+        ref={canvasRef}
+        width={340}
+        height={140}
+        onPointerDown={start}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerLeave={end}
+        className="w-full touch-none rounded-xl border-2 border-dashed border-black/10 bg-canvas"
+      />
+      <div className="mt-2 flex items-center justify-between">
+        <span className="text-[11px] text-navy/40">Sign with your finger or mouse.</span>
+        <button onClick={clear} className="text-[12px] font-bold text-aman underline">Clear</button>
+      </div>
+    </Card>
   );
 }
 
