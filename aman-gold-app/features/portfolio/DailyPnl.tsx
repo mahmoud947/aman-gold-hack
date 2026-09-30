@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, Card, Row, Screen, Sheet } from "../../components/ui";
 import { computeDailyPnl, dayKey, type DayPnl } from "../../services/pnl";
 import { useStore } from "../../services/store";
@@ -20,6 +20,9 @@ export default function DailyPnl() {
   const st = useStore();
   const [view, setView] = useState<"calendar" | "bars">("calendar");
   const [sel, setSel] = useState<DayPnl | null>(null);
+  const [hoverDay, setHoverDay] = useState<number | null>(null);
+  const pointer = useRef("mouse");
+  const lastTap = useRef<number | null>(null);
   const days = useMemo(() => computeDailyPnl(st.txs), [st.txs]);
   const byKey = useMemo(() => new Map(days.map((d) => [d.key, d])), [days]);
 
@@ -28,7 +31,7 @@ export default function DailyPnl() {
   const first = days[0] ? new Date(days[0].ts) : today;
   const canPrev = ym.y > first.getFullYear() || (ym.y === first.getFullYear() && ym.m > first.getMonth());
   const canNext = ym.y < today.getFullYear() || (ym.y === today.getFullYear() && ym.m < today.getMonth());
-  const shift = (d: number) => setYm(({ y, m }) => { const t = new Date(y, m + d, 1); return { y: t.getFullYear(), m: t.getMonth() }; });
+  const shift = (d: number) => { setHoverDay(null); lastTap.current = null; setYm(({ y, m }) => { const t = new Date(y, m + d, 1); return { y: t.getFullYear(), m: t.getMonth() }; }); };
 
   const dim = new Date(ym.y, ym.m + 1, 0).getDate();
   const lead = new Date(ym.y, ym.m, 1).getDay();
@@ -43,6 +46,8 @@ export default function DailyPnl() {
   const label = new Date(ym.y, ym.m, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   const isToday = (k: string) => k === dayKey(Date.now());
   const selTxs = sel ? st.txs.filter((t) => sel.txIds.includes(t.id)) : [];
+  const hc = hoverDay !== null ? cells[hoverDay] : undefined;
+  const hv = hc?.data?.realized ?? 0;
 
   return (
     <Screen title="Daily P&L">
@@ -86,15 +91,41 @@ export default function DailyPnl() {
           </Card>
         ) : (
           <Card>
-            <svg viewBox="0 0 340 170" className="w-full">
-              <line x1="0" x2="340" y1="85" y2="85" stroke="#1e2b4a" strokeOpacity=".15" />
-              {cells.map((c, i) => {
-                const v = c.data?.realized ?? 0;
-                const h = (Math.abs(v) / maxAbs) * 75;
-                const w = 340 / cells.length;
-                return <rect key={c.key} x={i * w + 1} width={Math.max(2, w - 2)} y={v >= 0 ? 85 - h : 85} height={Math.max(v === 0 ? 0 : 1, h)} rx="1.5" fill={v >= 0 ? "#15803d" : "#dc2626"} opacity={c.data ? 1 : 0.15} onClick={() => c.data && setSel(c.data)} />;
-              })}
-            </svg>
+            <div className="relative pt-12" onMouseLeave={() => setHoverDay(null)}>
+              {hc && (
+                <div className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy px-2.5 py-1.5 text-center text-white shadow-lg"
+                  style={{ left: `${Math.min(84, Math.max(16, ((hoverDay! + 0.5) / cells.length) * 100))}%` }}>
+                  <div className="text-[10.5px] text-white/60">{dateStr(new Date(ym.y, ym.m, hc.day).getTime())}</div>
+                  <div className={`text-[12.5px] font-extrabold ${hv > 0.005 ? "text-green-300" : hv < -0.005 ? "text-red-300" : ""}`}>
+                    {!hc.data ? "No data" : hv > 0.005 ? `Gain ${signedEgp(hv, 2)}` : hv < -0.005 ? `Loss ${signedEgp(hv, 2)}` : "No gain or loss · EGP 0.00"}
+                  </div>
+                </div>
+              )}
+              <svg viewBox="0 0 340 170" className="w-full">
+                <line x1="0" x2="340" y1="85" y2="85" stroke="#1e2b4a" strokeOpacity=".15" />
+                {cells.map((c, i) => {
+                  const v = c.data?.realized ?? 0;
+                  const h = (Math.abs(v) / maxAbs) * 75;
+                  const w = 340 / cells.length;
+                  const faded = hoverDay !== null && hoverDay !== i;
+                  return (
+                    <g key={c.key}>
+                      {hoverDay === i && <rect x={i * w} width={w} y="0" height="170" fill="#1e2b4a" fillOpacity=".05" />}
+                      <rect x={i * w + 1} width={Math.max(2, w - 2)} y={v >= 0 ? 85 - h : 85} height={Math.max(v === 0 ? 0 : 1, h)} rx="1.5" fill={v >= 0 ? "#15803d" : "#dc2626"} opacity={c.data ? (faded ? 0.45 : 1) : 0.15} />
+                      {/* Full-height hit area: small bars are otherwise hard to hover or tap. */}
+                      <rect x={i * w} width={w} y="0" height="170" fill="transparent" className="cursor-pointer"
+                        onMouseEnter={() => setHoverDay(i)} onPointerDown={(e) => { pointer.current = e.pointerType; }}
+                        onClick={() => {
+                          // Mouse: click opens the day sheet. Touch: first tap shows the tooltip, a second tap on the same bar opens the sheet.
+                          setHoverDay(i);
+                          if (c.data && (pointer.current !== "touch" || lastTap.current === i)) setSel(c.data);
+                          lastTap.current = i;
+                        }} />
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
             <div className="mt-1 flex justify-between text-[10px] text-navy/40"><span>1</span><span>{Math.ceil(dim / 2)}</span><span>{dim}</span></div>
           </Card>
         )}

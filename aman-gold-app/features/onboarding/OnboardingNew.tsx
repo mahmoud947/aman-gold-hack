@@ -10,11 +10,10 @@ import { useStore } from "../../services/store";
  * All checks here are DEMO validations. The list of required data is a configurable checklist
  * (config/product.ts), NOT a statement of Egyptian regulatory requirements: to be validated with Compliance.
  */
-const STEPS = ["Introduction", "Mobile number", "Verification code", "Create PIN", "Personal details", "ID document", "Selfie check", "eKYC signature", "Aman prepaid card", "Agreements", "Done"];
+const STEPS = ["Introduction", "Mobile number", "Verification code", "Create PIN", "Personal details", "ID document", "Selfie check", "eKYC signature", "Agreements", "Done"];
 const TOTAL = STEPS.length;
 const digits = (v: string, n: number) => v.replace(/\D/g, "").slice(0, n);
 const maskId = (id: string) => (id.length >= 8 ? `${id.slice(0, 4)}${"*".repeat(id.length - 8)}${id.slice(-4)}` : id);
-const TOPUPS = [1000, 5000, 10000, 25000];
 
 export default function OnboardingNew() {
   const nav = useNav();
@@ -25,8 +24,6 @@ export default function OnboardingNew() {
   const [back, setBack] = useState(false);
   const [selfie, setSelfie] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
-  const [cardIssued, setCardIssued] = useState(false);
-  const [topUp, setTopUp] = useState(0);
   const [agree, setAgree] = useState(false);
   const [doc, setDoc] = useState<string | null>(null);
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
@@ -39,7 +36,6 @@ export default function OnboardingNew() {
 
   const finish = () => {
     st.set({ customer: { name: f.name.trim(), mobile: `+20 ${f.mobile.replace(/^0/, "")}`, nationalIdMasked: maskId(f.nid), dob: f.dob, address: f.address.trim(), nationality: f.nationality.trim(), accountStatus: "Active Aman account (new)" }, kycMissing: false });
-    if (topUp > 0) st.topUp(topUp);
     st.completeOnboarding();
     nav.reset("dashboard");
   };
@@ -53,8 +49,7 @@ export default function OnboardingNew() {
     step === 6 ? <Button disabled={!(front && back)} onClick={next}>Continue</Button> :
     step === 7 ? <Button disabled={!selfie} onClick={next}>Continue</Button> :
     step === 8 ? <Button disabled={!signature} onClick={next}>Continue</Button> :
-    step === 9 ? <Button disabled={!cardIssued} onClick={next}>Continue</Button> :
-    step === 10 ? <Button disabled={!agree} onClick={next}>Start Investing</Button> :
+    step === 9 ? <Button disabled={!agree} onClick={next}>Start Investing</Button> :
     <Button variant="gold" onClick={finish}>View Gold</Button>;
 
   return (
@@ -65,7 +60,7 @@ export default function OnboardingNew() {
           <div className="rounded-3xl bg-aman-gradient p-6 text-center text-white"><div className="text-5xl">◈</div><div className="mt-2 text-[24px] font-black">Invest in Gold</div><div className="mt-1 text-[13px] opacity-90">New to Aman? It takes a few minutes.</div></div>
           <Card>
             <div className="mb-2 text-[14px] font-bold">What you'll do</div>
-            {["Verify your mobile number", "Create a PIN to approve orders", "Confirm who you are (details, ID, selfie)", "Get your Aman prepaid card and add money via InstaPay", "Read and accept the terms"].map((t, i) => (
+            {["Verify your mobile number", "Create a PIN to approve orders", "Confirm who you are (details, ID, selfie, signature)", "Read and accept the terms"].map((t, i) => (
               <div key={t} className="flex gap-3 py-1.5 text-[13px]"><span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-aman-soft text-[11px] font-bold text-aman-dark">{i + 1}</span>{t}</div>
             ))}
           </Card>
@@ -131,20 +126,6 @@ export default function OnboardingNew() {
         </>)}
 
         {step === 9 && (<>
-          <Alert tone="info">Gold purchases are paid from your Aman prepaid card balance. Add money via {PRODUCT_CONFIG.payment.topUpRail}.</Alert>
-          {!cardIssued ? (
-            <Card><div className="text-[14px] font-bold">Your Aman prepaid card</div><div className="my-2 text-[13px] text-navy/60">We'll issue a virtual card linked to your new profile. Demo: no card is really issued.</div><Button onClick={() => setCardIssued(true)}>Get my Aman prepaid card</Button></Card>
-          ) : (<>
-            <div className="rounded-2xl bg-aman-gradient p-4 text-white"><div className="text-[11px] opacity-80">{PRODUCT_CONFIG.payment.method}</div><div className="mt-3 text-[16px] tracking-widest">{PRODUCT_CONFIG.payment.maskedCard}</div><div className="mt-2 text-[11px] opacity-80">Balance: EGP {topUp.toLocaleString()}</div></div>
-            <Card>
-              <div className="mb-2 text-[14px] font-bold">Add money via {PRODUCT_CONFIG.payment.topUpRail} (optional now)</div>
-              <div className="grid grid-cols-4 gap-2">{TOPUPS.map((v) => <button key={v} onClick={() => setTopUp(topUp === v ? 0 : v)} className={`rounded-xl py-3 text-[13px] font-bold ${topUp === v ? "bg-aman text-white" : "bg-aman-soft text-aman-dark"}`}>{v >= 1000 ? `${v / 1000}K` : v}</button>)}</div>
-              <div className="mt-2 text-[11px] text-navy/45">Simulated. You can top up later from the buy screen.</div>
-            </Card>
-          </>)}
-        </>)}
-
-        {step === 10 && (<>
           <Card>
             {["Terms & Conditions", "Gold Investment Terms", "Fees", "Risk Disclosure", "Privacy Policy"].map((d) => (
               <button key={d} onClick={() => setDoc(d)} className="flex w-full items-center justify-between border-b border-black/5 py-3 text-left text-[14px] font-semibold last:border-0">{d}<span className="text-aman">›</span></button>
@@ -157,12 +138,12 @@ export default function OnboardingNew() {
           </Sheet>
         </>)}
 
-        {step === 11 && (
+        {step === 10 && (
           <div className="pt-6 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-4xl text-good">✓</div>
             <div className="mt-4 text-[22px] font-black">You're ready to invest in gold</div>
-            <div className="mt-1 text-[13px] text-navy/60">Your Aman profile and prepaid card are set up.</div>
-            <Card><div className="mt-3 text-left"><Row k="Name" v={f.name} /><Row k="Mobile" v={`+20 ${f.mobile.replace(/^0/, "")}`} /><Row k="National ID" v={maskId(f.nid)} /><Row k="Prepaid balance" v={`EGP ${topUp.toLocaleString()}`} /></div></Card>
+            <div className="mt-1 text-[13px] text-navy/60">Your Aman profile is set up. Add money any time from the Gold screen.</div>
+            <Card><div className="mt-3 text-left"><Row k="Name" v={f.name} /><Row k="Mobile" v={`+20 ${f.mobile.replace(/^0/, "")}`} /><Row k="National ID" v={maskId(f.nid)} /></div></Card>
           </div>
         )}
       </div>

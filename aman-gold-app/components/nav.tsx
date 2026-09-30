@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useState } from "react";
 
-export type ScreenName = "home" | "landing" | "onboarding" | "dashboard" | "buy" | "sell" | "portfolio" | "transactions" | "txDetail" | "profile" | "dailyPnl";
+export type ScreenName = "home" | "landing" | "onboarding" | "dashboard" | "buy" | "sell" | "portfolio" | "transactions" | "txDetail" | "profile" | "dailyPnl" | "cash";
 export interface Route { name: ScreenName; params?: Record<string, string> }
 
 interface Nav {
