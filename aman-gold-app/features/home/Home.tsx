@@ -1,6 +1,6 @@
 "use client";
 import { useNav } from "../../components/nav";
-import { DemoTag } from "../../components/ui";
+import { DemoTag, Pill } from "../../components/ui";
 import { useStore } from "../../services/store";
 import { egp } from "../../utils/format";
 import { getBuyPrice, getCurrentGoldPrice } from "../../services/pricing";
@@ -17,7 +17,7 @@ const PAY = [
 
 export default function Home() {
   const nav = useNav();
-  const { wallet, onboarded, version } = useStore();
+  const { wallet, onboarded, authenticated, version } = useStore();
   void version;
   const goldTile = () => nav.push(onboarded ? "dashboard" : "landing");
   return (
@@ -27,6 +27,10 @@ export default function Home() {
         <span className="text-[26px] font-black tracking-tight text-aman">aman</span>
         <span className="text-xl">🔍</span>
       </div>
+      <button onClick={() => nav.push(authenticated ? "profile" : "auth")} className="mx-4 mt-3 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-left shadow-sm">
+        <span><span className="block text-[12px] font-bold">{authenticated ? "Authenticated demo session" : "Log in or create an account"}</span><span className="block text-[10px] text-navy/50">{authenticated ? "View identity, KYC status, and logout" : "Required for protected Gold experiences"}</span></span>
+        <Pill tone={authenticated ? "good" : "neutral"}>{authenticated ? "SIGNED IN" : "SIGNED OUT"}</Pill>
+      </button>
       <div className="no-scrollbar flex-1 overflow-y-auto pb-4">
         {/* promo banner */}
         <div className="mx-4 mt-3 flex h-24 items-center justify-between overflow-hidden rounded-2xl bg-aman-gradient-flat px-4 text-white">

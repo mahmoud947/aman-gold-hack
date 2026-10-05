@@ -11,11 +11,17 @@ import Profile from "../features/profile/Profile";
 import Cash from "../features/cash/Cash";
 import { StoreProvider, useStore } from "../services/store";
 import { NavProvider, useNav } from "./nav";
+import { Authentication } from "../features/auth/Authentication";
+
+const PROTECTED = new Set(["dashboard", "buy", "sell", "portfolio", "transactions", "txDetail", "profile", "dailyPnl", "cash"]);
 
 function Router() {
   const { route } = useNav();
+  const { authenticated } = useStore();
+  if (route.name !== "auth" && PROTECTED.has(route.name) && !authenticated) return <Authentication required destination={route.name} />;
   switch (route.name) {
     case "home": return <Home />;
+    case "auth": return <Authentication />;
     case "landing": return <Landing />;
     case "onboarding": return <Onboarding />;
     case "dashboard": return <Dashboard />;
@@ -60,6 +66,8 @@ function Controls() {
         <Toggle label="KYC incomplete" hint="Address missing: blocks investing, shows onboarding fix" on={s.kycMissing} onChange={(v) => s.set({ kycMissing: v })} />
         <Toggle label="Market volatility banner" hint="Shows the rapid-change warning" on={s.volatility} onChange={(v) => s.set({ volatility: v })} />
         <Toggle label="Fail next transaction" hint="Shows 'We couldn't complete your transaction'" on={s.failNext} onChange={(v) => s.set({ failNext: v })} />
+        <Toggle label="Fail next authentication" hint="Demonstrates recoverable, non-sensitive failure feedback" on={s.failNextAuth} onChange={(v) => s.set({ failNextAuth: v })} />
+        <Toggle label="Invalidate demo session" hint="Shows protected-access behavior after state becomes invalid" on={!s.authenticated} onChange={(v) => s.set({ authenticated: !v })} />
       </div>
       <div>
         <div className="mb-1 text-[12px] font-bold text-navy/60">Simulate price move</div>

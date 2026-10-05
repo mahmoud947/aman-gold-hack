@@ -6,6 +6,7 @@ import { buildBuy, buildSell, computeCash, computeWallet, validateBuy, validateS
 import { getBuyPrice, getCurrentGoldPrice, getSellPrice, isProviderAvailable, marketControls } from "./pricing";
 import { loadHistoryFromDb } from "./history";
 import { PRODUCT_CONFIG } from "../config/product";
+import { runDemoAuthentication } from "./auth";
 
 const KEY = "aman-gold-app-v4";
 /** new = existing Aman customer (data on file) who is new to Gold; existing = existing gold investor (Ahmed); brandNew = new customer with nothing on file. */
@@ -19,17 +20,18 @@ export type Mode = "new" | "existing" | "brandNew";
 interface Persisted {
   mode: Mode; onboarded: boolean; openingCash: number; topUps: number; txs: Transaction[]; customer: Customer;
   kycMissing: boolean; failNext: boolean; volatility: boolean;
+  authenticated: boolean; failNextAuth: boolean;
 }
 
 const fresh = (mode: Mode): Persisted => {
   if (mode === "existing") {
     const seed = buildSeed();
-    return { mode, onboarded: true, openingCash: seed.openingCash, topUps: 0, txs: seed.txs, customer: { ...DEMO_CUSTOMER }, kycMissing: false, failNext: false, volatility: false };
+    return { mode, onboarded: true, openingCash: seed.openingCash, topUps: 0, txs: seed.txs, customer: { ...DEMO_CUSTOMER }, kycMissing: false, failNext: false, volatility: false, authenticated: false, failNextAuth: false };
   }
   if (mode === "brandNew") {
-    return { mode, onboarded: false, openingCash: 0, topUps: 0, txs: [], customer: { name: "", mobile: "", nationalIdMasked: "", dob: "", address: null, nationality: "", accountStatus: "No Aman account yet" }, kycMissing: false, failNext: false, volatility: false };
+    return { mode, onboarded: false, openingCash: 0, topUps: 0, txs: [], customer: { name: "", mobile: "", nationalIdMasked: "", dob: "", address: null, nationality: "", accountStatus: "No Aman account yet" }, kycMissing: false, failNext: false, volatility: false, authenticated: false, failNextAuth: false };
   }
-  return { mode, onboarded: false, openingCash: DEMO_OPENING_CASH, topUps: 0, txs: [], customer: { ...DEMO_CUSTOMER }, kycMissing: false, failNext: false, volatility: false };
+  return { mode, onboarded: false, openingCash: DEMO_OPENING_CASH, topUps: 0, txs: [], customer: { ...DEMO_CUSTOMER }, kycMissing: false, failNext: false, volatility: false, authenticated: false, failNextAuth: false };
 };
 
 interface Store extends Persisted {
@@ -40,6 +42,8 @@ interface Store extends Persisted {
   buyPrice: number; sellPrice: number;
   todayBuyEgp: number;
   kycOk: boolean;
+  authPending: boolean;
+  authError: boolean;
   setMode: (m: Mode) => void;
   set: (patch: Partial<Persisted>) => void;
   completeOnboarding: () => void;
@@ -51,6 +55,10 @@ interface Store extends Persisted {
   withdraw: (amount: number) => void;
   shock: (pct: number) => void;
   setProviderUp: (v: boolean) => void;
+  login: (input: { mobile: string }) => Promise<boolean>;
+  register: (input: { mobile: string; name: string }) => Promise<boolean>;
+  logout: () => Promise<void>;
+  clearAuthError: () => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -66,6 +74,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [s, setS] = useState<Persisted>(() => fresh("new"));
   const [version, setVersion] = useState(0);
   const [hydrated, setHydrated] = useState(false);
+  const [authPending, setAuthPending] = useState(false);
+  const [authError, setAuthError] = useState(false);
   // `master` is updated synchronously by apply(), so two rapid actions can never read stale state.
   const master = useRef<Persisted>(s);
   const busy = useRef(false);
@@ -78,7 +88,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    try { const raw = localStorage.getItem(KEY); if (raw) apply(() => JSON.parse(raw) as Persisted); } catch { /* ignore */ }
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) apply(() => ({ ...fresh("new"), ...(JSON.parse(raw) as Partial<Persisted>) }));
+    } catch { /* ignore */ }
     setHydrated(true);
   }, [apply]);
   useEffect(() => { if (hydrated) try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* ignore */ } }, [s, hydrated]);
@@ -132,10 +145,47 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const withdraw = useCallback((amount: number) => { apply((p) => ({ ...p, topUps: p.topUps - amount })); }, [apply]);
   const shock = useCallback((pct: number) => marketControls.shock(pct), []);
   const setProviderUp = useCallback((v: boolean) => marketControls.setAvailable(v), []);
+  const authenticate = useCallback(async (intent: "login" | "register", input: { mobile: string; name?: string }) => {
+    if (authPending) return false;
+    setAuthPending(true);
+    setAuthError(false);
+    const shouldFail = master.current.failNextAuth;
+    if (shouldFail) apply((p) => ({ ...p, failNextAuth: false }));
+    try {
+      const result = await runDemoAuthentication({ intent, ...input, fail: shouldFail });
+      apply((p) => ({
+        ...p,
+        authenticated: true,
+        customer: {
+          ...p.customer,
+          name: result.name ?? (p.customer.name || "Aman customer"),
+          mobile: `+20 ${result.mobile.replace(/^0/, "")}`,
+          accountStatus: intent === "register" ? "Demo account created" : p.customer.accountStatus,
+        },
+      }));
+      return true;
+    } catch {
+      setAuthError(true);
+      return false;
+    } finally {
+      setAuthPending(false);
+    }
+  }, [apply, authPending]);
+  const login = useCallback((input: { mobile: string }) => authenticate("login", input), [authenticate]);
+  const register = useCallback((input: { mobile: string; name: string }) => authenticate("register", input), [authenticate]);
+  const logout = useCallback(async () => {
+    if (authPending) return;
+    setAuthPending(true);
+    setAuthError(false);
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    apply((p) => ({ ...p, authenticated: false }));
+    setAuthPending(false);
+  }, [apply, authPending]);
+  const clearAuthError = useCallback(() => setAuthError(false), []);
 
   const value: Store = {
-    ...s, version, providerUp: isProviderAvailable(), cash, wallet, buyPrice, sellPrice, todayBuyEgp: todayBuyOf(s), kycOk: kycOkOf(s),
-    setMode, set, completeOnboarding, completeKyc, makeQuote, executeBuy, executeSell, topUp, withdraw, shock, setProviderUp,
+    ...s, version, providerUp: isProviderAvailable(), cash, wallet, buyPrice, sellPrice, todayBuyEgp: todayBuyOf(s), kycOk: kycOkOf(s), authPending, authError,
+    setMode, set, completeOnboarding, completeKyc, makeQuote, executeBuy, executeSell, topUp, withdraw, shock, setProviderUp, login, register, logout, clearAuthError,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

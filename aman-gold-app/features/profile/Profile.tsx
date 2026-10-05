@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { PRODUCT_CONFIG } from "../../config/product";
-import { Card, Pill, Row, Screen, Sheet, Button } from "../../components/ui";
+import { Alert, Card, Pill, Row, Screen, Sheet, Button } from "../../components/ui";
 import { useStore } from "../../services/store";
+import { useNav } from "../../components/nav";
 
 const FAQ = [
   ["Is my gold real?", "In this prototype, no: prices and balances are simulated. In a live product, holdings would be backed by an approved partner (to be validated)."],
@@ -12,7 +13,9 @@ const FAQ = [
 ];
 
 export default function Profile() {
-  const { customer: c, kycOk, cash } = useStore();
+  const store = useStore();
+  const { customer: c, kycOk, cash } = store;
+  const nav = useNav();
   const [sheet, setSheet] = useState<string | null>(null);
   const item = (t: string) => <button key={t} onClick={() => setSheet(t)} className="flex w-full items-center justify-between border-b border-black/5 py-3 text-left text-[14px] font-semibold last:border-0">{t}<span className="text-aman">›</span></button>;
   return (
@@ -23,6 +26,7 @@ export default function Profile() {
             <div><div className="text-[17px] font-extrabold">{c.name}</div><div className="text-[12px] text-navy/50">{c.mobile}</div></div></div>
         </Card>
         <Card>
+          <Row k="Authentication" v={<Pill tone="good">Authenticated</Pill>} />
           <Row k="KYC status" v={<Pill tone={kycOk ? "good" : "bad"}>{kycOk ? "Complete" : "Incomplete"}</Pill>} />
           <Row k="National ID" v={c.nationalIdMasked} />
           <Row k="Linked payment method" v={`${PRODUCT_CONFIG.payment.method} ${PRODUCT_CONFIG.payment.maskedCard.slice(-4)}`} />
@@ -31,6 +35,8 @@ export default function Profile() {
         </Card>
         <Card>{["Terms & Conditions", "Gold Investment Terms", "Risk Disclosure", "Privacy Policy"].map(item)}</Card>
         <Card>{["FAQ", "Support"].map(item)}</Card>
+        {!kycOk && <Alert tone="warn">Your identity is authenticated, but KYC is incomplete. This demo does not assume eligibility; complete the missing profile information before investing.</Alert>}
+        <Button variant="secondary" disabled={store.authPending} onClick={async () => { await store.logout(); nav.reset("home"); }}>{store.authPending ? "Logging out…" : "Log out"}</Button>
         <div className="text-center text-[11px] text-navy/40">{PRODUCT_CONFIG.labels.notAdvice}</div>
       </div>
       <Sheet open={!!sheet} onClose={() => setSheet(null)} title={sheet ?? ""}>
