@@ -5,6 +5,7 @@ import { Alert, Button, Card, DemoTag, Pill, Row, Screen, Stat } from "../../com
 import { useStore } from "../../services/store";
 import { egp, grams, pct, signedEgp } from "../../utils/format";
 import { minPurchaseEgp } from "../../services/engine";
+import { getCurrentGoldPrice } from "../../services/pricing";
 
 /** Cash in (arrow into tray) / cash out (arrow out of tray) shortcut on the portfolio card. */
 function CashButton({ dir, onClick, disabled }: { dir: "in" | "out"; onClick: () => void; disabled?: boolean }) {
@@ -24,6 +25,9 @@ function CashButton({ dir, onClick, disabled }: { dir: "in" | "out"; onClick: ()
 export default function Dashboard() {
   const nav = useNav();
   const { wallet: w, buyPrice, sellPrice, cash, providerUp, kycOk, volatility, customer } = useStore();
+  const currentPrice = getCurrentGoldPrice();
+  // One troy ounce is 31.1034768 grams. This is a conversion of the same 24k demo quote.
+  const ouncePrice = currentPrice * 31.1034768;
   const up = w.unrealizedPnl >= 0;
   const empty = w.grams === 0;
   return (
@@ -39,7 +43,7 @@ export default function Dashboard() {
           <div className="text-[12px] text-white/60">Current value (at sell price)</div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div><div className="text-[11px] text-white/60">Gold holdings</div><div className="text-[18px] font-extrabold">{grams(w.grams, 1)}</div></div>
-            <div><div className="text-[11px] text-white/60">Unrealized P&L</div>
+            <div><div className="text-[11px] text-white/60">Unrealized P&amp;L</div>
               <div className={`text-[18px] font-extrabold ${up ? "text-green-300" : "text-red-300"}`}>{empty ? "EGP 0" : signedEgp(w.unrealizedPnl)}</div>
               <div className={`text-[12px] font-bold ${up ? "text-green-300" : "text-red-300"}`}>{empty ? "—" : pct(w.unrealizedPct)}</div></div>
           </div>
@@ -59,11 +63,16 @@ export default function Dashboard() {
         {empty && <div className="text-center text-[12px] text-navy/50">You don't own any gold yet. Buy from 0.1 g (about {egp(minPurchaseEgp(buyPrice))}) to get started.</div>}
 
         <Card>
-          <div className="mb-2 flex items-center justify-between"><div className="text-[14px] font-bold">Gold price</div><Pill tone="gold">EGP / gram · 24k</Pill></div>
+          <div className="mb-2 flex items-center justify-between"><div className="text-[14px] font-bold">Gold price</div><Pill tone="gold">EGP · 24k</Pill></div>
           <div className="mb-3 grid grid-cols-2 gap-3 rounded-xl bg-canvas p-3">
-            <Stat label="Buy price" value={egp(buyPrice, 2)} />
-            <Stat label="Sell price" value={egp(sellPrice, 2)} />
+            <Stat label="Demo mid-market / gram" value={egp(currentPrice, 2)} />
+            <Stat label="Demo mid-market / troy oz" value={egp(ouncePrice, 2)} />
           </div>
+          <div className="mb-3 grid grid-cols-2 gap-3 rounded-xl bg-canvas p-3">
+            <Stat label="Buy price / gram" value={egp(buyPrice, 2)} />
+            <Stat label="Sell price / gram" value={egp(sellPrice, 2)} />
+          </div>
+          <div className="mb-2 text-[11px] text-navy/50">Demo/simulated pricing, not a live market feed. Troy-ounce value is calculated from the 24k per-gram quote.</div>
           <PriceChart />
         </Card>
 
