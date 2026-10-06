@@ -1,2 +1,5 @@
-import PhoneShell from "../components/PhoneShell";
-export default function Page() { return <PhoneShell />; }
+import LaunchExperience from "../components/LaunchExperience";
+
+export default function Page() {
+  return <LaunchExperience />;
+}
